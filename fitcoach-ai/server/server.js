@@ -1,10 +1,12 @@
 const express = require('express');
 const dotenv = require('dotenv');
+
+dotenv.config();
+
+
 const cors = require('cors');
 const connectDB = require('./config/db');
 
-// Load environment variables from .env file
-dotenv.config();
 
 // Connect to MongoDB
 connectDB();
@@ -19,8 +21,8 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/auth', require('./routes/authRoutes'));
-app.use('/api/v1/clients', require('./routes/clientRoutes'));
-app.use('/api/v1/plans', require('./routes/planRoutes'));
+//app.use('/api/v1/clients', require('./routes/clientRoutes'));
+//app.use('/api/v1/plans', require('./routes/planRoutes'));
 
 const PORT = process.env.PORT || 5000;
 
