@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import api from "../services/api";
+import { useAuth } from "../context/AuthContext";
 
 function Login() {
     const navigate = useNavigate();
+    const { saveUser } = useAuth();
 
     const [formData, setFormData] = useState({
         email: "",
@@ -34,7 +36,7 @@ function Login() {
                     password,
                 });
 
-                localStorage.setItem("user", JSON.stringify(response.data));
+                saveUser(response.data)
 
                 navigate("/dashboard");
             } catch (error) {
