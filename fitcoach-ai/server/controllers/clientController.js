@@ -34,7 +34,10 @@ const createClient = async (req, res) => {
 // Get one client
 const getClientById = async (req, res) => {
     try {
-        const client = await Client.findById(req.params.id);
+        const client = await Client.findOne({
+            _id: req.params.id,
+            coach: req.user._id,
+        });
 
         if (!client) {
             return res.status(404).json({ message: 'Client not found' });

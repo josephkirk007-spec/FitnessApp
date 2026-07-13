@@ -5,6 +5,7 @@ import Dashboard from "./pages/Dashboard";
 import ProtectedRoute from "./components/ProtectedRoute";
 import { useAuth } from "./context/AuthContext";
 import AddClients from "./pages/AddClients";
+import ClientsDetails from "./pages/ClientDetails";
 
 function App() {
   const{ user } = useAuth();
@@ -54,6 +55,13 @@ function App() {
         <Route path ="/clients/edit/:id" element = {
           <ProtectedRoute>
             <EditClient />
+          </ProtectedRoute>
+        }
+        />
+
+        <Route path ="/clients/:id" element = {
+          <ProtectedRoute>
+            <ClientDetails />
           </ProtectedRoute>
         }
         />
