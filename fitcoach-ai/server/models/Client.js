@@ -9,6 +9,7 @@ const clientSchema = new mongoose.Schema({
     name: {
         type: String,
         required: [true, "Please add a client name"],
+        trim: true,
     },
     age: {
         type: Number,
@@ -30,9 +31,9 @@ const clientSchema = new mongoose.Schema({
         type: String,
         required: [true, "Please add available equipment"],
     },
-    dietPreferences: {
+    dietPreference: {
         type: String,
-        required: [true, "Please add diet preferences"],
+        required: [true, "Please add diet preference"],
     },
     foodRestrictions: {
         type: String,

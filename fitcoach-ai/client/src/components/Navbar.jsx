@@ -21,6 +21,8 @@ function Navbar() {
 
                 <Link to="/clients"> Clients </Link>
 
+                <Link to="/plans"> Saved Plans </Link>
+
                 <span> Welcome, {user?.name} </span>
 
                 <button type="button" onClick={handleLogout}>
