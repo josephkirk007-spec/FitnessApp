@@ -17,6 +17,7 @@ function ClientDetails() {
   const [plan, setPlan] = useState(null);
   const [generating, setGenerating] = useState(false);
   const [planMessage, setPlanMessage] = useState("");
+  const [workoutPlan, setWorkoutPlan] = useState(null);
 
   useEffect(() => {
     const fetchClient = async () => {
@@ -121,6 +122,36 @@ const handleGeneratePlan = async () => {
     } else {
       setPlanMessage(error.message);
     }
+  } finally {
+    setGenerating(false);
+  }
+};
+
+const handleGenerateWorkoutPlan = async () => {
+  try {
+    setGenerating(true);
+    setPlanMessage("");
+
+    const response = await api.post(
+      "/workouts/generate",
+      {
+        clientId: id,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      }
+    );
+
+    setWorkoutPlan(response.data);
+  } catch (error) {
+    console.error("Generate workout plan error:", error);
+
+    setPlanMessage(
+      error.response?.data?.message ||
+        "Unable to generate the workout plan."
+    );
   } finally {
     setGenerating(false);
   }
@@ -251,12 +282,57 @@ const handleGeneratePlan = async () => {
 
               <button
                 type="button"
-                onClick={handleGeneratePlan}
+                onClick={handleGenerateWorkoutPlan}
                 disabled={generating}
               >
-              {generating ? "Generating plan..." : "Generate Your Titan Plan"}
+              {generating ? "Generating Titan plan..." : "Generate Your Titan Plan"}
               </button>
             </section>
+
+            {deleteMessage && (
+              <p className="error-message">{deleteMessage}</p>
+            )}
+
+            {planMessage && (
+              <p className="error-message">{planMessage}</p>
+            )}
+
+            {workoutPlan && (
+              <section className="generated-plan">
+                <h2>{workoutPlan.title}</h2>
+
+                <p>
+                  <strong>Length:</strong> {workoutPlan.weeks} weeks
+                </p>
+
+                <p>
+                  <strong>Training Days:</strong>{" "}
+                  {workoutPlan.workoutDays} per week
+                </p>
+
+                {workoutPlan.exercises?.map((day) => (
+                  <article
+                    key={day._id || day.day}
+                    className="plan-section"
+                  >
+                    <h3>{day.day}</h3>
+
+                    <ul>
+                      {day.workout?.map((exercise, index) => (
+                        <li key={`${day.day}-${index}`}>
+                          {exercise}
+                        </li>
+                      ))}
+                    </ul>
+                  </article>
+                ))}
+
+                <div className="plan-section">
+                  <h3> Coach Guidance </h3>
+                  <p>{workoutPlan.notes || "No additional guidance."}</p>
+                </div>
+              </section>
+            )}
           </>
         )}
       </main>

@@ -9,6 +9,7 @@ import AddClients from "./pages/AddClients";
 import ClientDetails from "./pages/ClientDetails";
 import EditClient from "./pages/EditClients";
 import Plans from "./pages/Plans";
+import SavedPlans from "./pages/SavedPlans";
 
 function App() {
   const{ user } = useAuth();
@@ -34,6 +35,7 @@ function App() {
           <Route path="/clients/:id" element={<ClientDetails />} />
           <Route path="/clients/:id/edit" element={<EditClient />} />
           <Route path="/plans" element={<Plans />} />
+          <Route path="/saved-plans" element={<SavedPlans />} />
         </Route>
 
       <Route path="*" element={<Navigate to="/" replace />} />

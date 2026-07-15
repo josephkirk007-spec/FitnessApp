@@ -21,7 +21,7 @@ function Navbar() {
 
                 <Link to="/clients"> Clients </Link>
 
-                <Link to="/plans"> Saved Plans </Link>
+                <Link to="/saved-plans"> Saved Plans </Link>
 
                 <span> Welcome, {user?.name} </span>
 

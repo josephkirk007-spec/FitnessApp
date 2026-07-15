@@ -122,7 +122,7 @@ const updateClient = async (req, res) => {
     const updatedClient = await Client.findOneAndUpdate(
       {
         _id: req.params.id,
-        coach: req.body,
+        coach: req.user._id,
       },
       {
         name: req.body.name?.trim(),
@@ -132,7 +132,7 @@ const updateClient = async (req, res) => {
         workoutDays: Number(req.body.workoutDays),
         dietPreference: req.body.dietPreference,
         foodRestrictions: req.body.foodRestrictions?.trim() || "None",
-        notes: req.body.notes?.trim() || "None",
+        notes: req.body.notes?.trim() || "",
       },
       {
         new: true,
@@ -142,7 +142,10 @@ const updateClient = async (req, res) => {
 
     res.status(200).json(updatedClient);
   } catch (error) {
-    res.status(500).json({
+      console.error("UPDATE CLIENT ERROR:", error);
+
+
+      return res.status(500).json({
       message: error.message,
     });
   }
