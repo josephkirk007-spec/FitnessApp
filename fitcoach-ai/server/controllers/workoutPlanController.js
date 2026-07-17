@@ -1,6 +1,6 @@
 const WorkoutPlan = require("../models/WorkoutPlan");
 const Client = require("../models/Client");
-const { generateWorkoutData } = require("../services/workoutService");
+const { generateAIWorkoutData } = require("../services/aiPlanService");
 
 
 const getGoalExercise = (goal) => {
@@ -211,7 +211,7 @@ const generateWorkoutPlan = async (req, res) => {
       });
     }
 
-    const generatedData = generateWorkoutData(client);
+    const generatedData = await generateAIWorkoutData(client);
 
     const workoutPlan = await WorkoutPlan.create({
       coach: req.user._id,
@@ -223,6 +223,14 @@ const generateWorkoutPlan = async (req, res) => {
     return res.status(201).json(workoutPlan);
   } catch (error) {
     console.error("GENERATE WORKOUT PLAN ERROR:", error);
+
+    if(
+      error.status === 429 || error.code === "insufficent_quota"
+    ) {
+      return res.status(503).json({
+        message: "AI generation is unavailable because API project has no available credit."
+      })
+    }
 
     return res.status(500).json({
       message: error.message || "Unable to generate workout plan",

@@ -32,8 +32,8 @@ function Login() {
                 setLoading(true);
 
                 const response = await api.post("/auth/login", {
-                    email,
-                    password,
+                    email: formData.email.trim().toLowerCase(),
+                    password: formData.password,
                 });
 
                 saveUser(response.data)
@@ -63,9 +63,9 @@ function Login() {
         return (
             <main className="auth-page">
                 <section className="auth-card">
-                    <h1> Coach Login </h1>
+                    <h1> Titan Trainer </h1>
 
-                    <p> Log in to manage clients and create personalized plans. </p>
+                    <p> Coach Portal </p>
 
                     {message && <p className="error-message">{message} </p>}
                     

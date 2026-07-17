@@ -26,8 +26,8 @@ const registerUser = async (req, res) => {
 
     const user = await User.create({
         name,
-        email,
-        password: hashedPassword
+        email: email.trim().toLowerCase(),
+        password: hashedPassword,
     });
 
         res.status(201).json({
@@ -44,26 +44,46 @@ const registerUser = async (req, res) => {
 
 const loginUser = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const email = req.body.email?.trim().toLowerCase();
+        const password = req.body.password;
 
         if (!email || !password) {
             return res.status(400).json({ message: 'Please add all fields' });
         }
 
         const user = await User.findOne({ email });
-        if (user && (await bcrypt.compare(password, user.password))) {
-            res.json({
-                _id: user._id,
-                name: user.name,
-                email: user.email,
-                token: generateToken(user._id)
+
+        if(!user) {
+            return res.status(401).json({
+                message: "Invalid email or password",
             });
-        } else {
-            res.status(401).json({ message: 'Invalid credentials' });
         }
+
+        const passwordMatches = await bcrypt.compare(
+            password,
+            user.password
+        );
+
+        if(!passwordMatches) {
+            return res.status(401).json({
+                message: "Invalid email or password"
+            });
+        }
+
+        return res.status(200).json({
+            _id: user._id,
+            name: user.name,
+            email: user.email,
+            token: generateToken(user._id),
+        });
     } catch (error) {
-        res.status(500).json({ message: 'Server error' });
+        console.error("LOGIN ERROR:", error);
+
+        return res.status(500).json({
+            message: error.message || "Unable to log in",
+        });
     }
+  
 };
 
 const getMe = async (req, res) => {

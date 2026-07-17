@@ -100,6 +100,12 @@ function WorkoutPlanCard({
             >
               <h3>{day.day}</h3>
 
+              {day.foucs && (
+                <p>
+                  <strong>Focus:</strong> {day.focus}
+                </p>
+              )}
+
               <ul>
                 {day.workout?.map((exercise, index) => (
                   <li key={`${day.day}-${index}`}>

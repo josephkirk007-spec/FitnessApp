@@ -18,6 +18,9 @@ function ClientDetails() {
   const [generating, setGenerating] = useState(false);
   const [planMessage, setPlanMessage] = useState("");
   const [workoutPlan, setWorkoutPlan] = useState(null);
+  const [dietPlan, setDietPlan] = useState(null);
+  const [generatingDiet, setGeneratingDiet] = useState(false);
+  const [dietMessage, setDietMessage] = useState("");
 
   useEffect(() => {
     const fetchClient = async () => {
@@ -157,6 +160,36 @@ const handleGenerateWorkoutPlan = async () => {
   }
 };
 
+const handleGenerateDietPlan = async () => {
+  try {
+    setGeneratingDiet(true);
+    setDietMessage("");
+
+    const response = await api.post(
+      "/diets/generate",
+      {
+        clientId: id,
+      },
+      {
+        headers: {
+          Authorization: `Bearer ${user.token}`,
+        },
+      }
+    );
+
+    setDietPlan(response.data);
+  } catch (error) {
+    console.error("Generate diet plan error:", error);
+
+    setDietMessage(
+      error.response?.data?.message ||
+        "Unable to generate the diet plan."
+    );
+  } finally {
+    setGeneratingDiet(false);
+  }
+};
+
   return (
     <>
       <Navbar />
@@ -287,6 +320,17 @@ const handleGenerateWorkoutPlan = async () => {
               >
               {generating ? "Generating Titan plan..." : "Generate Your Titan Plan"}
               </button>
+
+              <button
+                type="button"
+                onClick={handleGenerateDietPlan}
+                disabled={generatingDiet}
+                className="primary-button"
+              >
+                {generatingDiet
+                  ? "Generating Diet Plan..."
+                   : "Generate Diet Plan"}
+              </button>
             </section>
 
             {deleteMessage && (
@@ -295,6 +339,10 @@ const handleGenerateWorkoutPlan = async () => {
 
             {planMessage && (
               <p className="error-message">{planMessage}</p>
+            )}
+
+            {dietMessage && (
+              <p className="error-message">{dietMessage}</p>
             )}
 
             {workoutPlan && (
@@ -317,6 +365,12 @@ const handleGenerateWorkoutPlan = async () => {
                   >
                     <h3>{day.day}</h3>
 
+                    {day.focus && (
+                      <p>
+                        <strong>Focus:</strong> {day.focus}
+                      </p>
+                    )}
+
                     <ul>
                       {day.workout?.map((exercise, index) => (
                         <li key={`${day.day}-${index}`}>
@@ -333,6 +387,83 @@ const handleGenerateWorkoutPlan = async () => {
                 </div>
               </section>
             )}
+
+            {dietPlan && (
+              <section className="generated-plan diet-plan">
+              <h2>{dietPlan.title}</h2>
+
+              <div className="nutrition-summary">
+                <article>
+                  <h3>Daily Calories</h3>
+                  <p>{dietPlan.dailyCalories}</p>
+                </article>
+
+                <article>
+                  <h3>Protein</h3>
+                  <p>{dietPlan.protein} g</p>
+                </article>
+
+                <article>
+                  <h3>Carbohydrates</h3>
+                  <p>{dietPlan.carbs} g</p>
+                </article>
+
+                <article>
+                  <h3>Fat</h3>
+                  <p>{dietPlan.fat} g</p>
+                </article>
+              </div>
+
+              <p>
+                <strong>Diet preference:</strong>{" "}
+                {dietPlan.dietPreference}
+             </p>
+
+              <p>
+                <strong>Food restrictions:</strong>{" "}
+                {dietPlan.foodRestrictions || "None"}
+              </p>
+
+              <div className="diet-meals">
+                {dietPlan.meals?.map((meal) => (
+                <article
+                  key={meal._id || meal.mealName}
+                  className="plan-section"
+                >
+                  <h3>{meal.mealName}</h3>
+
+                  <ul>
+                    {meal.foods?.map((food, index) => (
+                   <li key={`${meal.mealName}-${index}`}>
+                      {food}
+                  </li>
+                  ))}
+                </ul>
+
+                <p>
+                  <strong>Calories:</strong> {meal.calories}
+                </p>
+
+                <p>
+                  <strong>Macros:</strong>{" "}
+                    {meal.protein}g protein, {meal.carbs}g carbs,{" "}
+                    {meal.fat}g fat
+                </p>
+              </article>
+            ))}
+            </div>
+
+            <section className="plan-section">
+              <h3>Nutrition Guidance</h3>
+
+              <p>
+                {dietPlan.notes ||
+                  "Review the plan and adjust portions when needed."}
+              </p>
+            </section>
+          </section>
+        )}
+            
           </>
         )}
       </main>

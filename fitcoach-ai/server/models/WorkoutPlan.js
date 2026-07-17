@@ -34,10 +34,18 @@ const workoutPlanSchema = new mongoose.Schema(
         day: {
           type: String,
           required: true,
+          trim: true,
+        },
+
+        focus: {
+          type: String,
+          default: "",
+          trim: true,
         },
 
         workout: {
           type: [String],
+          required: true,
           default: [],
         },
       },

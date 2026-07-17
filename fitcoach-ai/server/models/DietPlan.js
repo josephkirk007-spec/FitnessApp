@@ -80,6 +80,12 @@ const dietPlanSchema = new mongoose.Schema(
             min: 0,
         },
 
+        carbs: {
+            type: Number,
+            required: true,
+            min: 0,
+        },
+
         fat: {
             type: Number,
             required: true,

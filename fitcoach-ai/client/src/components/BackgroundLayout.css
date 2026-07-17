@@ -1,0 +1,26 @@
+.background-layout {
+    position: relative;
+    min-height: 100vh;
+    overflow-x: hidden;
+    background: #0f1115;
+    isolation: isolate;
+}
+
+.background-logo {
+    position: fixed;
+    top: 50%;
+    left: 50;
+    transform: translate(-50%, -50%);
+    width: (720px, 75vw);
+    opacity: 0.14;
+    pointer-events: none;
+    z-index: 0;
+    filter: blur(1px);
+}
+
+.page.content {
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    background: transparent;
+}
