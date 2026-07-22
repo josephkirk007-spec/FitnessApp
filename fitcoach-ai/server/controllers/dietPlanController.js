@@ -1,12 +1,10 @@
 const DietPlan = require("../models/DietPlan");
 const Client = require("../models/Client");
 const {
-  generateDietData,
-} = require("../services/openaiPlanService");
+  generateAIDietData,
+} = require("../services/aiPlanService");
 
-const {
-  generateDietData,
-} = require("../services/dietService");
+const { generateDietData } = require("../services/dietService");
 
 // @desc    Generate and save a diet plan
 // @route   POST /api/v1/diets/generate
@@ -35,7 +33,20 @@ const generateDietPlan = async (req, res) => {
     }
 
     // Generate calories, macros, meals, and notes.
-    const generatedData = generateAIDietData(client);
+    let generatedData;
+    let generationSource = "ai"
+
+    try {
+    generatedData = await generateAIDietData(client);
+    } catch(aiError) {
+      console.error(
+        "AI diet failed. Using local generator:",
+        aiError.message
+      );
+
+      generatedData = generateDietData(client);
+      generationSource = "local";
+    }
 
     // Save the generated diet plan in MongoDB.
     const dietPlan = await DietPlan.create({
@@ -44,17 +55,16 @@ const generateDietPlan = async (req, res) => {
       ...generatedData,
     });
 
-    return res.status(201).json(dietPlan);
+    return res.status(201).json({
+      ...dietPlan.toObject(),
+      generationSource,
+      generationMessage:
+        generationSource === "ai"
+        ? "Diet plan  generated with AI."
+        : "AI was unavailable. A local diet plan was generated."
+    });
   } catch (error) {
     console.error("GENERATE DIET PLAN ERROR:", error);
-
-    if (
-      error.status === 429 || error.code === "insufficent_quota"
-    ) {
-      return res.status(503).json({
-        message: "AI generation is unavailable because API project has no available credit."
-      });
-    }
 
     return res.status(500).json({
       message:

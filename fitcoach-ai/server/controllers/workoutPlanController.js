@@ -1,6 +1,7 @@
 const WorkoutPlan = require("../models/WorkoutPlan");
 const Client = require("../models/Client");
 const { generateAIWorkoutData } = require("../services/aiPlanService");
+const { generateWorkoutData } = require("../services/workoutService");
 
 
 const getGoalExercise = (goal) => {
@@ -211,8 +212,21 @@ const generateWorkoutPlan = async (req, res) => {
       });
     }
 
-    const generatedData = await generateAIWorkoutData(client);
+    let generatedData;
+    let generationSource = "ai";
 
+    try{
+      // Try the AI generator first.
+      generatedData =  await generateAIWorkoutData(client);
+    } catch (aiError) {
+      console.error("AI workout failed. Using local generator:",
+      aiError.message
+      );
+
+      //Fallback to workoutService.js.
+      generatedData = generateWorkoutData(client);
+      generationSource = "local";
+    }
     const workoutPlan = await WorkoutPlan.create({
       coach: req.user._id,
       client: client._id,
@@ -220,17 +234,16 @@ const generateWorkoutPlan = async (req, res) => {
     });
 
 
-    return res.status(201).json(workoutPlan);
+    return res.status(201).json(workoutPlan)({
+      ...workoutPlan.toObject(),
+      generationSource,
+      generationMessage:
+        generationSource === "ai"
+          ? "Workout plan generate with AI."
+          : "AI was unavailable. A local workout plan was generated.",
+    });
   } catch (error) {
     console.error("GENERATE WORKOUT PLAN ERROR:", error);
-
-    if(
-      error.status === 429 || error.code === "insufficent_quota"
-    ) {
-      return res.status(503).json({
-        message: "AI generation is unavailable because API project has no available credit."
-      })
-    }
 
     return res.status(500).json({
       message: error.message || "Unable to generate workout plan",

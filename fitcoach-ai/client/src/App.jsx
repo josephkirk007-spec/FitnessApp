@@ -11,6 +11,7 @@ import EditClient from "./pages/EditClients";
 import Plans from "./pages/Plans";
 import SavedPlans from "./pages/SavedPlans";
 import BackgroundLayout from "./components/BackgroundLayout";
+import Footer from "./components/Footer";
 
 function App() {
   const{ user } = useAuth();
@@ -42,6 +43,7 @@ function App() {
 
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          <Footer />
         </BackgroundLayout>
       </BrowserRouter>
   );
