@@ -1,4 +1,5 @@
 import "./Footer.css";
+import logo from "../assets/logo.png";
 
 function Footer() {
     return (
@@ -7,7 +8,7 @@ function Footer() {
 
                 <div className="footer-brand">
                     <img
-                      src="/assets/logo.png"
+                      src={logo}
                       alt="Titan Trainer Logo"
                       className="footer-logo"
                       />
