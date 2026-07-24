@@ -1,127 +1,160 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 
-function WorkoutPlanCard({ 
+function WorkoutPlanCard({
   plan,
   onDelete,
   onUpdate,
-  }) {
-   const [expanded, setExpanded] = useState(false);
+}) {
+  const [editing, setEditing] =
+    useState(false);
 
-   const clientName = plan.client?.name || "Deleted Client";
+  const [formData, setFormData] =
+    useState({
+      title: plan.title || "",
+      weeks: plan.weeks || 4,
+      workoutDays:
+        plan.workoutDays || 3,
+      notes: plan.notes || "",
+    });
 
-   return (
-    <article className="workout-plan-card">
-      <div className="workout-plan-header">
-        <div>
+  const handleChange = (event) => {
+    const { name, value } =
+      event.target;
+
+    setFormData((currentData) => ({
+      ...currentData,
+      [name]: value,
+    }));
+  };
+
+  const handleSave = async () => {
+    await onUpdate(plan._id, {
+      title: formData.title,
+      weeks: Number(formData.weeks),
+      workoutDays: Number(
+        formData.workoutDays
+      ),
+      notes: formData.notes,
+    });
+
+    setEditing(false);
+  };
+
+  return (
+    <article className="plan-card">
+      {!editing ? (
+        <>
           <h2>{plan.title}</h2>
 
           <p>
-            Client: <strong>{clientName}</strong>
+            <strong>Client:</strong>{" "}
+            {plan.client?.name ||
+              "Unknown client"}
           </p>
 
           <p>
-            Created:{" "}
-            {new Date(plan.createdAt).toLocaleDateString()}
-          </p>
-        </div>
-
-        <span className="plan-status">Saved</span>
-      </div>
-
-      {plan.client && (
-        <div className="workout-plan-summary">
-          <p>
-            <strong>Goal:</strong> {plan.client.goal}
+            <strong>Weeks:</strong>{" "}
+            {plan.weeks}
           </p>
 
           <p>
-            <strong>Fitness level:</strong>{" "}
-            {plan.client.fitnessLevel}
+            <strong>Training days:</strong>{" "}
+            {plan.workoutDays}
           </p>
 
-          <p>
-            <strong>Equipment:</strong>{" "}
-            {plan.client.equipment}
-          </p>
+          {plan.notes && (
+            <p>
+              <strong>Notes:</strong>{" "}
+              {plan.notes}
+            </p>
+          )}
 
-          <p>
-            <strong>Length:</strong> {plan.weeks} weeks
-          </p>
-
-          <p>
-            <strong>Workout days:</strong>{" "}
-            {plan.workoutDays} per week
-          </p>
-        </div>
-      )}
-
-      <div className="plan-card-actions">
-        <button
-          type="button"
-          className="secondary-button"
-          onClick={() => setExpanded((current) => !current)}
-        >
-          {expanded ? "Hide Plan" : "View Plan"}
-        </button>
-
-        {plan.client?._id && (
-          <Link
-            className="secondary-link"
-            to={`/clients/${plan.client._id}`}
-          >
-            View Client
-          </Link>
-        )}
-
-        <button
-          type="button"
-          className="secondary-button"
-          onClick={() => onUpdate(plan)}
-        >
-          Update Plan
-        </button>
-
-        <button
-          type="button"
-          className="secondary-button"
-          onClick={() => onDelete(plan._id)}
-        >
-          Delete Plan
-        </button>
-      </div>
-
-      {expanded && (
-        <div className="workout-plan-content">
-          {plan.exercises?.map((day) => (
-            <section
-              key={day._id || day.day}
-              className="plan-section"
+          <div className="plan-actions">
+            <button
+              type="button"
+              onClick={() =>
+                setEditing(true)
+              }
             >
-              <h3>{day.day}</h3>
+              Update Plan
+            </button>
 
-              {day.foucs && (
-                <p>
-                  <strong>Focus:</strong> {day.focus}
-                </p>
-              )}
+            <button
+              type="button"
+              className="delete-button"
+              onClick={() =>
+                onDelete(plan._id)
+              }
+            >
+              Delete Plan
+            </button>
+          </div>
+        </>
+      ) : (
+        <>
+          <h2>Edit Workout Plan</h2>
 
-              <ul>
-                {day.workout?.map((exercise, index) => (
-                  <li key={`${day.day}-${index}`}>
-                    {exercise}
-                  </li>
-                ))}
-              </ul>
-            </section>
-          ))}
+          <label>
+            Title
+            <input
+              name="title"
+              value={formData.title}
+              onChange={handleChange}
+            />
+          </label>
 
-          <section className="plan-section">
-            <h3>Coach Guidance</h3>
+          <label>
+            Weeks
+            <input
+              name="weeks"
+              type="number"
+              min="1"
+              value={formData.weeks}
+              onChange={handleChange}
+            />
+          </label>
 
-            <p>{plan.notes || "No additional notes."}</p>
-          </section>
-        </div>
+          <label>
+            Training days
+            <input
+              name="workoutDays"
+              type="number"
+              min="1"
+              max="7"
+              value={
+                formData.workoutDays
+              }
+              onChange={handleChange}
+            />
+          </label>
+
+          <label>
+            Notes
+            <textarea
+              name="notes"
+              value={formData.notes}
+              onChange={handleChange}
+            />
+          </label>
+
+          <div className="plan-actions">
+            <button
+              type="button"
+              onClick={handleSave}
+            >
+              Save Changes
+            </button>
+
+            <button
+              type="button"
+              onClick={() =>
+                setEditing(false)
+              }
+            >
+              Cancel
+            </button>
+          </div>
+        </>
       )}
     </article>
   );
