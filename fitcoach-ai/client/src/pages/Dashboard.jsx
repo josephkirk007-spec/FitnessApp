@@ -3,18 +3,20 @@ import Navbar from "../components/Navbar";
 import { useAuth } from "../context/AuthContext";
 import api from "../services/api";
 import { captureOwnerStack } from "react";
+import { useNavigate } from "react-router-dom";
 
 function Dashboard() {
     const { user } = useAuth();
+    const navigate = useNavigate();
 
-    const [stats, useStats] = useState({
+    const [stats, setStats] = useState({
         clients: 0,
-        workoutPlan: 0,
+        workoutPlans: 0,
         dietPlans: 0,
     });
 
     const [loading, setLoading] = useState(true);
-    const [message, useMessage] = useState("");
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
       const fetchDashboardStats = async () => {
@@ -31,45 +33,88 @@ function Dashboard() {
                     Authorization: `Bearer ${user.token}`,
                 },
             };
-            
-            const [
-                clientsResponse,
-                workoutResponse,
-                dietResponse
-            ] = await Promise.all([
+
+            const results = await Promise.allSettled([
                 api.get("/clients", config),
                 api.get("/workouts", config),
                 api.get("/diets", config),
             ]);
+            
+            const [
+                clientsResult,
+                workoutResult,
+                dietResult
+            ] = results;
 
-            console.log("Clients response:", clientsResponse.data);
-            console.log("Workout response:", workoutResponse.data);
-            console.log("Diet response:", dietResponse.data);
+
+
+            console.log("Clients Result:", clientsResult);
+            console.log("Workout Result:", workoutResult);
+            console.log("Diet Result:", dietResult);
+
+            const clientsResponse = 
+              clientsResult.status === "fulfilled"
+               ? clientsResult.value.data 
+               : [];
+            
+            const workoutResponse =
+              workoutResult.status === "fulfilled"
+               ? workoutResult.value.data 
+               : [];
+
+            const dietResponse =
+             dietResult.status === "fulfilled"
+              ? dietResult.value.data
+              : [];
 
             
-            const clientsData = Array.isArray(clientsResponse.data)
-                ? clientsResponse.data.length
-                : clientsResponse.data.clients || [];
+            const clients = Array.isArray(clientsResponse)
+                ? clientsResponse
+                : clientsResponse?.clients || [];
 
-            const workoutData = Array.isArray(workoutResponse.data)
-                ? workoutResponse.data.length
-                : workoutResponse.data.workoutPlans || [];
+            const workoutPlans = Array.isArray(workoutResponse)
+                ? workoutResponse
+                : workoutResponse?.workoutPlans ||
+                  workoutResponse?.plans || [];
 
-            const dietData = Array.isArray(dietResponse.data)
-                ? dietResponse.data.length 
-                : dietResponse.data.dietPlans || [];
+            const dietPlans = Array.isArray(dietResponse)
+                ? dietResponse
+                : dietResponse?.dietPlans || 
+                  dietResponse?.plans || [];
             
           setStats ({
-            clients: clientsData.length,
-            workoutPlans: workoutData.length,
-            dietPlans: dietData.length,
+            clients: clients.length,
+            workoutPlans: workoutPlans.length,
+            dietPlans: dietPlans.length,
           });
+
+          const failedRequests = results.filter(
+            (result) => result.status === "rejected"
+          );
+
+          if(failedRequests.length > 0) {
+            console.error(
+                "Failed Dashboard Requests:", 
+                failedRequests
+            );
+
+            setMessage(
+                `${failedRequests.length} dashboard request(s) failed. Check the browser console.`
+            );
+          } else {
+            setMessage("");
+          }
         } catch(error) {
             console.error("Dashboard stats error", error);
+            console.error("Status:", error.response?.status);
+            console.error("Server Response:", error.response?.data);
+            console.error("Request URL:", error.config?.url);
 
             setMessage(
                 error.response?.data?.message ||
-                "Unable to load dashboard statistics"
+                `Unable to load dashboard statistics ${error.response?.status
+                 ? `(${error.response.status})`: " "
+            }`
             );
         } finally {
             setLoading(false);
@@ -98,26 +143,30 @@ function Dashboard() {
             )}
 
             <section className="dashboard-grid">
-                <article className="dashboard-card">
+                <article className="dashboard-card clickable card"
+                 onClick={() => navigate("/clients")}>
                     <h2> Clients </h2>
                     <p> Add and manage your fitness clients. </p>
                     <strong>{loading ? "Loading...": `${stats.clients} Clients`} </strong>
                 </article>
 
-                <article className="dashboard-card">
+                <article className="dashboard-card clickable card"
+                 onClick={() => navigate("/saved-plans?type=workout")}>
                     <h2> Workout Plans </h2>
                     <p> Create customized weekly workout schedules. </p>
                     <strong>{loading ? "Loading...": `${stats.workoutPlans} Plans`} </strong>
                 </article>
 
-                <article className="dashboard-card">
+                <article className="dashboard-card clickable card"
+                 onClick={() => navigate("/saved-plans?type=diet")}>
                     <h2> Diet Plans </h2>
                     <p> Create plans based on dietary preferences and restrictions. </p>
                     <strong>{loading ? "Loading...": `${stats.dietPlans} Plans`} </strong>
                 </article>
 
-                <article className="dashboard-card">
-                    <h2> AI Plan Generator </h2>
+                <article className="dashboard-card clickable card"
+                 onClick={() => navigate("/clients")}>
+                    <h2>  Total Plans </h2>
                     <p> Generate personalized fitness and nutrition recommendations. </p>
                     <strong>{Number(stats.workoutPlans || 0) + Number(stats.dietPlans || 0)}{" "} Total Plans </strong>
                 </article>

@@ -3,28 +3,61 @@ import { Link } from "react-router-dom";
 import api from "../services/api.js";
 import Navbar from "../components/Navbar.jsx";
 import WorkoutPlanCard from "../components/WorkoutPlanCard.jsx";
+import DietPlanCard from "../components/DietPlanCard.jsx";
 import { useAuth } from "../context/AuthContext.jsx";
+import { useSearchParams } from "react-router-dom";
 
 function SavedPlans() {
   const { user } = useAuth();
-
+  const [searchParams] = useSearchParams();
+  const selectedType = 
+    searchParams.get("type") === "diet"
+      ? "diet"
+      : "workout";
+      
   const [plans, setPlans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
+  const [workoutPlans, setWorkoutPlans] = useState([]);
+  const [dietPlans, setDietPlans] = useState([]);
 
   useEffect(() => {
-    const fetchWorkoutPlans = async () => {
+    const fetchPlans = async () => {
+      if(!user?.token) return;
+
       try {
         setLoading(true);
         setMessage("");
 
-        const response = await api.get("/workouts", {
+        const config = {
           headers: {
             Authorization: `Bearer ${user.token}`,
           },
-        });
+        };
+        
+        const [workoutResponse, dietResponse] =
+         await Promise.all([
+          api.get("/workouts", config),
+          api.get("/diets", config),
+         ]);
 
-        setPlans(response.data);
+         const workoutData = Array.isArray(
+          workoutResponse
+         )
+           ? workoutResponse
+           : workoutResponse.data?.workoutPlans ||
+           workoutResponse.data?.plans || [];
+
+        const dietData = Array.isArray(
+          dietResponse.data
+        )
+          ? dietResponse
+          : dietResponse.data?.dietPlans ||
+           dietResponse.data?.plans || [];
+
+        setWorkoutPlans(workoutData);
+        setDietPlans(dietData);
+
       } catch (error) {
         console.error("Fetch workout plans error:", error);
 
@@ -46,9 +79,9 @@ function SavedPlans() {
     };
 
     if (user?.token) {
-      fetchWorkoutPlans();
+      fetchPlans();
     }
-  }, [user]);
+  }, [user?.token]);
 
   const handleDeletePlan = async (planId) => {
     const confirmed = window.confirm(
@@ -126,6 +159,10 @@ function SavedPlans() {
   }
 };
 
+const plansToDisplay =
+  selectedType === "diet"
+    ? dietPlans
+    :workoutPlans;
 
   return (
     <>
@@ -152,7 +189,7 @@ function SavedPlans() {
           <p className="error-message">{message}</p>
         )}
 
-        {!loading && !message && plans.length === 0 && (
+        {!loading && !message && plansToDisplay.length === 0 && (
           <section className="empty-state">
             <h2>No saved workout plans yet</h2>
 
@@ -166,15 +203,25 @@ function SavedPlans() {
           </section>
         )}
 
-        {!loading && plans.length > 0 && (
+        {!loading && plansToDisplay.length > 0 && (
           <section className="plans-list">
-            {plans.map((plan) => (
-              <WorkoutPlanCard
-                key={plan._id}
-                plan={plan}
-                onDelete={handleDeletePlan}
-                onUpdate={handleUpdatePlan}
-              />
+            {plansToDisplay.map((plan) =>
+              selectedType === "diet"
+                ? (
+                  <DietPlanCard
+                    key={plan._id}
+                    plan={plan}
+                    onDelete={handleDeletePlan}
+                    onUpdate={handleUpdatePlan}
+                    />
+                )
+                : (
+                  <WorkoutPlanCard
+                    key={plan._id}
+                    plan={plan}
+                    onDelete={handleDeletePlan}
+                    onUpdate={handleUpdatePlan}
+                  />
             ))}
           </section>
         )}

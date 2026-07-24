@@ -86,8 +86,94 @@ const loginUser = async (req, res) => {
   
 };
 
+const resetPassword = async (req, res) => {
+  try {
+    const {
+      email,
+      newPassword,
+      confirmPassword,
+    } = req.body;
+
+    if (
+      !email ||
+      !newPassword ||
+      !confirmPassword
+    ) {
+      return res.status(400).json({
+        message: "Please fill in every field.",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        message:
+          "Password must contain at least 6 characters.",
+      });
+    }
+
+    if (newPassword !== confirmPassword) {
+      return res.status(400).json({
+        message: "The passwords do not match.",
+      });
+    }
+
+    const normalizedEmail = email
+      .trim()
+      .toLowerCase();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
+
+    if (!user) {
+      return res.status(404).json({
+        message:
+          "No account was found with that email.",
+      });
+    }
+
+    const passwordMatchesOldPassword =
+      await bcrypt.compare(
+        newPassword,
+        user.password
+      );
+
+    if (passwordMatchesOldPassword) {
+      return res.status(400).json({
+        message:
+          "Your new password must be different from your old password.",
+      });
+    }
+
+    const salt = await bcrypt.genSalt(10);
+
+    user.password = await bcrypt.hash(
+      newPassword,
+      salt
+    );
+
+    await user.save();
+
+    return res.status(200).json({
+      message:
+        "Password reset successfully. You can now log in.",
+    });
+  } catch (error) {
+    console.error(
+      "RESET PASSWORD ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        error.message ||
+        "Unable to reset your password.",
+    });
+  }
+};
+
 const getMe = async (req, res) => {
     res.json(req.user);
 };
 
-module.exports = { registerUser, loginUser, getMe };
+module.exports = { registerUser, loginUser, resetPassword, getMe };

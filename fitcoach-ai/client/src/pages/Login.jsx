@@ -106,6 +106,12 @@ function Login() {
                     <p>
                         Need an account? <Link to="/register"> Register </Link>
                     </p>
+
+                    <p className="forgot-password">
+                        <Link to="/forgot-password">
+                          Forgot your password 
+                          </Link>
+                    </p>
                 </section>
             </main>
         );

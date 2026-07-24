@@ -12,12 +12,12 @@ import Plans from "./pages/Plans";
 import SavedPlans from "./pages/SavedPlans";
 import BackgroundLayout from "./components/BackgroundLayout";
 import Footer from "./components/Footer";
+import ForgotPassword from "./pages/ForgotPassword";
 
 function App() {
   const{ user } = useAuth();
 
   return (
-        <BrowserRouter>
          <BackgroundLayout>
           <Routes>
             <Route path="/" 
@@ -30,6 +30,8 @@ function App() {
             <Route path="/register" element={<Register />} />
 
             <Route path="/login" element={<Login />} />
+
+            <Route path="/forgot-password" element={<ForgotPassword />} />
 
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
@@ -45,7 +47,6 @@ function App() {
           </Routes>
           <Footer />
         </BackgroundLayout>
-      </BrowserRouter>
   );
 }
 
