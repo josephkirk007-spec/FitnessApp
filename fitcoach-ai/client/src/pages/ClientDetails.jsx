@@ -9,6 +9,8 @@ function ClientDetails() {
   const navigate = useNavigate();
   const { user } = useAuth();
 
+  const token = user?.token || localStorage.getItem("token");
+
   const [client, setClient] = useState(null);
   const [loading, setLoading] = useState(true);
   const [message, setMessage] = useState("");
@@ -130,13 +132,14 @@ const handleGeneratePlan = async () => {
   }
 };
 
-const handleGenerateWorkoutPlan = async () => {
+const generateWorkoutPlan = async () => {
   try {
     setGenerating(true);
     setPlanMessage("");
 
     const response = await api.post(
-      "/workouts/generate",
+      `/workouts/generate/${client._id}`,
+      {},
       {
         clientId: id,
       },
@@ -147,7 +150,7 @@ const handleGenerateWorkoutPlan = async () => {
       }
     );
 
-    setWorkoutPlan(response.data);
+    setWorkoutPlan(response.data.plan || response.data);
   } catch (error) {
     console.error("Generate workout plan error:", error);
 
@@ -160,13 +163,14 @@ const handleGenerateWorkoutPlan = async () => {
   }
 };
 
-const handleGenerateDietPlan = async () => {
+const generateDietPlan = async () => {
   try {
     setGeneratingDiet(true);
     setDietMessage("");
 
     const response = await api.post(
-      "/diets/generate",
+      `/diets/generate/${client._id}`,
+      {},
       {
         clientId: id,
       },
@@ -177,7 +181,7 @@ const handleGenerateDietPlan = async () => {
       }
     );
 
-    setDietPlan(response.data);
+    setDietPlan(response.data.plan || response.data);
   } catch (error) {
     console.error("Generate diet plan error:", error);
 
@@ -315,7 +319,7 @@ const handleGenerateDietPlan = async () => {
 
               <button
                 type="button"
-                onClick={handleGenerateWorkoutPlan}
+                onClick={generateWorkoutPlan}
                 disabled={generating}
               >
               {generating ? "Generating Titan plan..." : "Generate Your Titan Plan"}
@@ -323,7 +327,7 @@ const handleGenerateDietPlan = async () => {
 
               <button
                 type="button"
-                onClick={handleGenerateDietPlan}
+                onClick={generateDietPlan}
                 disabled={generatingDiet}
                 className="primary-button"
               >

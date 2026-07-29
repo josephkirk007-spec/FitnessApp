@@ -2,7 +2,7 @@ const express = require("express");
 
 const {
     createWorkoutPlan,
-    generateWorkoutPlan,
+    generateAndSaveWorkoutPlan,
     getWorkoutPlans,
     getWorkoutPlanById,
     updateWorkoutPlan,
@@ -19,7 +19,7 @@ router
   .get(protect, getWorkoutPlans)
   .post(protect, createWorkoutPlan);
 
-router.post("/generate", protect, generateWorkoutPlan);
+router.post("/generate/:clientId", protect, generateAndSaveWorkoutPlan);
 
 router
   .route("/:id")

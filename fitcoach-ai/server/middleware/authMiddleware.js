@@ -1,38 +1,66 @@
-const jwt = require('jsonwebtoken');
-const User = require('../models/User');
+const jwt = require("jsonwebtoken");
+const User = require("../models/User");
 
 const protect = async (req, res, next) => {
-    try{
-        let token;
-        if(req.headers.authorization &&
-           req.headers.authorization.startsWith('Bearer')
-        ) {
-            token = req.headers.authorization.split(' ')[1];
-        }
-        
-        if(!token){
-            return res.status(401).json({ message: 'Not authorized, no token provided.',
-            });
-        }
-            
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+  try {
+    const authHeader =
+      req.headers.authorization;
 
-        const user = await User.findById(decoded.id).select('-password');
+    console.log(
+      "AUTH HEADER RECEIVED:",
+      Boolean(authHeader)
+    );
 
-        if(!user) {
-            return res.status(401).json({
-                message: "User connected to this token no longer exists. Log in again.",
-            });
-        }
-        
-        req.user = user;
+    if (
+      !authHeader ||
+      !authHeader.startsWith("Bearer ")
+    ) {
+      return res.status(401).json({
+        message:
+          "Not authorized, no token provided.",
+      });
+    }
 
-        next();
-        } catch (error) {
-            console.error("AUTH MIDDLEWARE ERROR", error.message);
+    const token = authHeader.split(" ")[1];
 
-            res.status(401).json({ message: 'Not authorized. Token is invalid or expired.' });
-        }
-    };
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET
+    );
 
-module.exports = { protect };
+    const userId =
+      decoded.id ||
+      decoded.userId ||
+      decoded._id;
+
+    const user = await User.findById(
+      userId
+    ).select("-password");
+
+    if (!user) {
+      return res.status(401).json({
+        message:
+          "Not authorized, user not found.",
+      });
+    }
+
+    req.user = user;
+    next();
+  } catch (error) {
+    console.error(
+      "AUTH MIDDLEWARE ERROR:",
+      error.message
+    );
+
+    return res.status(401).json({
+      message:
+        error.name === "TokenExpiredError"
+          ? "Your login session expired. Please log in again."
+          : "Not authorized, token failed.",
+    });
+  }
+};
+
+module.exports = {
+  protect,
+};

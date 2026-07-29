@@ -1,7 +1,7 @@
 const WorkoutPlan = require("../models/WorkoutPlan");
 const Client = require("../models/Client");
-const { generateAIWorkoutData } = require("../services/aiPlanService");
-const { generateWorkoutData } = require("../services/workoutService");
+const { generateWorkoutPlan } = require("../services/geminiService");
+//const { generateWorkoutData } = require("../services/workoutService");
 
 
 const getGoalExercise = (goal) => {
@@ -191,69 +191,72 @@ const deleteWorkoutPlan = async (req, res) => {
 // @desc    Generate a workout plan from a client's profile
 // @route   POST /api/v1/workouts/generate
 // @access  Private
-const generateWorkoutPlan = async (req, res) => {
+const generateAndSaveWorkoutPlan = async (
+  req,
+  res,
+  next
+) => {
   try {
-    const { clientId } = req.body;
-
-    if (!clientId) {
-      return res.status(400).json({
-        message: "Client ID is required",
-      });
-    }
-
     const client = await Client.findOne({
-      _id: clientId,
+      _id: req.params.clientId,
       coach: req.user._id,
     });
 
     if (!client) {
       return res.status(404).json({
-        message: "Client not found",
+        message: "Client not found.",
       });
     }
 
-    let generatedData;
-    let generationSource = "ai";
+    const generationResult =
+      await generateWorkoutPlan(client);
 
-    try{
-      // Try the AI generator first.
-      generatedData =  await generateAIWorkoutData(client);
-    } catch (aiError) {
-      console.error("AI workout failed. Using local generator:",
-      aiError.message
-      );
+    const generatedPlan =
+      generationResult.plan;
 
-      //Fallback to workoutService.js.
-      generatedData = generateWorkoutData(client);
-      generationSource = "local";
-    }
-    const workoutPlan = await WorkoutPlan.create({
-      coach: req.user._id,
-      client: client._id,
-      ...generatedData,
-    });
+    const savedPlan =
+      await WorkoutPlan.create({
+        ...generatedPlan,
+        client: client._id,
+        coach: req.user._id,
 
+        // Optional fields for tracking
+        generationSource:
+          generationResult.source,
 
-    return res.status(201).json(workoutPlan)({
-      ...workoutPlan.toObject(),
-      generationSource,
-      generationMessage:
-        generationSource === "ai"
-          ? "Workout plan generate with AI."
-          : "AI was unavailable. A local workout plan was generated.",
+        fallbackUsed:
+          generationResult.fallbackUsed,
+      });
+
+    await savedPlan.populate(
+      "client",
+      "name goal fitnessLevel"
+    );
+
+    return res.status(201).json({
+      message: generationResult.fallbackUsed
+        ? "Gemini was unavailable, so a local workout plan was generated."
+        : "AI workout plan generated successfully.",
+
+      source: generationResult.source,
+      fallbackUsed:
+        generationResult.fallbackUsed,
+
+      plan: savedPlan,
     });
   } catch (error) {
-    console.error("GENERATE WORKOUT PLAN ERROR:", error);
+    console.error(
+      "WORKOUT GENERATION ERROR:",
+      error
+    );
 
-    return res.status(500).json({
-      message: error.message || "Unable to generate workout plan",
-    });
+    return next(error);
   }
 };
 
 module.exports = {
   createWorkoutPlan,
-  generateWorkoutPlan,
+  generateAndSaveWorkoutPlan,
   getWorkoutPlans,
   getWorkoutPlanById,
   updateWorkoutPlan,

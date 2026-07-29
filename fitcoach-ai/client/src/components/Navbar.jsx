@@ -1,36 +1,68 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink } from "react-router-dom";
+import logo from "../assets/titan-logo.png";
 import { useAuth } from "../context/AuthContext";
+import "../index.css";
 
 function Navbar() {
-    const navigate = useNavigate();
-    const { user, logout } = useAuth();
+  const { user, logout } = useAuth();
 
-    const handleLogout = () => {
-        logout();
-        navigate("/login");
-    };
+  return (
+    <header className="navbar">
+      <Link to="/dashboard" className="navbar-brand">
+        <img
+          src={logo}
+          alt="Titan Trainer"
+          className="navbar-logo"
+        />
 
-    return (
-        <header className="navbar">
-            <Link to="/dashboard" className="navbar-brand">
-              Titan Trainer 
-              </Link>
+        <div className="navbar-brand-text">
+          <h1>Titan Trainer</h1>
+          <p>Unlock the Monster Within</p>
+        </div>
+      </Link>
 
-              <nav className="navbar-links">
-                <Link to="/dashboard"> Dashboard </Link>
+      <nav className="navbar-links">
+        <NavLink
+          to="/dashboard"
+          className={({ isActive }) =>
+            isActive ? "nav-link active-nav-link" : "nav-link"
+          }
+        >
+          Dashboard
+        </NavLink>
 
-                <Link to="/clients"> Clients </Link>
+        <NavLink
+          to="/clients"
+          className={({ isActive }) =>
+            isActive ? "nav-link active-nav-link" : "nav-link"
+          }
+        >
+          Clients
+        </NavLink>
 
-                <Link to="/saved-plans"> Saved Plans </Link>
+        <NavLink
+          to="/saved-plans?type=workout"
+          className={({ isActive }) =>
+            isActive ? "nav-link active-nav-link" : "nav-link"
+          }
+        >
+          Saved Plans
+        </NavLink>
 
-                <span> Welcome, {user?.name} </span>
+        <span className="navbar-user">
+          Welcome, {user?.name || "Coach"}
+        </span>
 
-                <button type="button" onClick={handleLogout}>
-                    Logout
-                </button>
-              </nav>
-        </header>
-    );
+        <button
+          type="button"
+          className="logout-button"
+          onClick={logout}
+        >
+          Log Out
+        </button>
+      </nav>
+    </header>
+  );
 }
 
 export default Navbar;

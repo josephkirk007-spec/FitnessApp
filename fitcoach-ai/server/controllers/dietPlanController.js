@@ -1,75 +1,73 @@
 const DietPlan = require("../models/DietPlan");
 const Client = require("../models/Client");
 const {
-  generateAIDietData,
-} = require("../services/aiPlanService");
+  generateDietPlan,
+} = require("../services/geminiService");
 
-const { generateDietData } = require("../services/dietService");
+//const { generateDietData } = require("../services/dietService");
 
 // @desc    Generate and save a diet plan
 // @route   POST /api/v1/diets/generate
 // @access  Private
-const generateDietPlan = async (req, res) => {
+const generateAndSaveDietPlan = async (
+  req,
+  res,
+  next
+) => {
   try {
-    const { clientId } = req.body;
-
-    if (!clientId) {
-      return res.status(400).json({
-        message: "Client ID is required",
-      });
-    }
-
-    // Find the client and confirm that the client
-    // belongs to the currently logged-in coach.
     const client = await Client.findOne({
-      _id: clientId,
+      _id: req.params.clientId,
       coach: req.user._id,
     });
 
     if (!client) {
       return res.status(404).json({
-        message: "Client not found",
+        message: "Client not found.",
       });
     }
 
-    // Generate calories, macros, meals, and notes.
-    let generatedData;
-    let generationSource = "ai"
+    const generationResult =
+      await generateDietPlan(client);
 
-    try {
-    generatedData = await generateAIDietData(client);
-    } catch(aiError) {
-      console.error(
-        "AI diet failed. Using local generator:",
-        aiError.message
-      );
+    const generatedPlan =
+      generationResult.plan;
 
-      generatedData = generateDietData(client);
-      generationSource = "local";
-    }
+    const savedPlan =
+      await DietPlan.create({
+        ...generatedPlan,
+        client: client._id,
+        coach: req.user._id,
 
-    // Save the generated diet plan in MongoDB.
-    const dietPlan = await DietPlan.create({
-      coach: req.user._id,
-      client: client._id,
-      ...generatedData,
-    });
+        generationSource:
+          generationResult.source,
+
+        fallbackUsed:
+          generationResult.fallbackUsed,
+      });
+
+    await savedPlan.populate(
+      "client",
+      "name goal dietPreference"
+    );
 
     return res.status(201).json({
-      ...dietPlan.toObject(),
-      generationSource,
-      generationMessage:
-        generationSource === "ai"
-        ? "Diet plan  generated with AI."
-        : "AI was unavailable. A local diet plan was generated."
+      message: generationResult.fallbackUsed
+        ? "Gemini was unavailable, so a local diet plan was generated."
+        : "AI diet plan generated successfully.",
+
+      source: generationResult.source,
+      fallbackUsed:
+        generationResult.fallbackUsed,
+
+      plan: savedPlan,
     });
   } catch (error) {
-    console.error("GENERATE DIET PLAN ERROR:", error);
+    console.error(
+      "DIET GENERATION ERROR:",
+      error
+    );
 
-    return res.status(500).json({
-      message:
-        error.message || "Unable to generate diet plan",
-    });
+    return next(error);
   }
 };
 
@@ -229,7 +227,7 @@ const deleteDietPlan = async (req, res) => {
 };
 
 module.exports = {
-  generateDietPlan,
+  generateAndSaveDietPlan,
   getDietPlans,
   getDietPlanById,
   updateDietPlan,

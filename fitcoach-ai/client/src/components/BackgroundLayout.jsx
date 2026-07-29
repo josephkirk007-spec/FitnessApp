@@ -1,5 +1,5 @@
 import "./BackgroundLayout.css";
-import logo from "../assets/logo.png";
+import logo from "../assets/titan-logo.png";
 
 function BackgroundLayout({ children }) {
     return (

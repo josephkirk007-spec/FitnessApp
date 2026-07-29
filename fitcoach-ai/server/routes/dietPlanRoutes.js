@@ -1,7 +1,7 @@
 const express = require("express");
 
 const {
-    generateDietPlan,
+    generateAndSaveDietPlan,
     getDietPlans,
     getDietPlanById,
     updateDietPlan,
@@ -16,7 +16,7 @@ const router = express.Router();
 router.get("/", protect, getDietPlans);
 
 //Generate and save a new diet plan
-router.post("/generate", protect, generateDietPlan);
+router.post("/generate/:clientId", protect, generateAndSaveDietPlan);
 
 //Get, update, and delete diet plan
 router
