@@ -17,7 +17,7 @@ const ai = process.env.GEMINI_API_KEY
     })
   : null;
 
-const geminiModel = process.env.GEMINI_MODEL || "gemini-flash-latest"
+const geminiModel = process.env.GEMINI_MODEL || "gemini-flash-latest";
 
 /*
   Removes Markdown code fences if the AI includes them,
@@ -38,6 +38,130 @@ const parseAIResponse = (text) => {
   return JSON.parse(cleanedText);
 };
 
+const normalizeWorkoutPlan = (plan) => {
+  return {
+    ...plan,
+
+    title:
+      typeof plan?.title === "string"
+        ? plan.title
+        : "AI Workout Plan",
+
+    weeks: Number(plan?.weeks) || 4,
+
+    workoutDays:
+      Number(plan?.workoutDays) ||
+      plan?.exercises?.length ||
+      3,
+
+    exercises: Array.isArray(plan?.exercises)
+      ? plan.exercises.map((day, index) => ({
+          day: day?.day || `Day ${index + 1}`,
+
+          focus:
+            day?.focus ||
+            "General Fitness",
+
+          workout: Array.isArray(day?.workout)
+            ? day.workout.map((exercise) => {
+                // Existing local-plan strings stay unchanged.
+                if (typeof exercise === "string") {
+                  return exercise;
+                }
+
+                // Convert Gemini objects into strings.
+                const name =
+                  exercise?.name || "Exercise";
+
+                const sets = exercise?.sets
+                  ? `${exercise.sets} sets`
+                  : "";
+
+                const reps = exercise?.reps
+                  ? `${exercise.reps} reps`
+                  : "";
+
+                const rest = exercise?.rest
+                  ? `${exercise.rest} rest`
+                  : "";
+
+                return [
+                  name,
+                  sets,
+                  reps,
+                  rest,
+                ]
+                  .filter(Boolean)
+                  .join(" — ");
+              })
+            : [],
+        }))
+      : [],
+
+    notes:
+      typeof plan?.notes === "string"
+        ? plan.notes
+        : "",
+  };
+};
+
+const normalizeDietPlan = (plan) => {
+  return {
+    ...plan,
+
+    title:
+      typeof plan?.title === "string"
+        ? plan.title
+        : "AI Diet Plan",
+
+    dailyCalories:
+      Number(plan?.dailyCalories) || 2000,
+
+    protein:
+      Number(plan?.protein) || 0,
+
+    carbs:
+      Number(plan?.carbs) || 0,
+
+    fat:
+      Number(plan?.fat) || 0,
+
+    meals: Array.isArray(plan?.meals)
+      ? plan.meals.map((meal, index) => ({
+          mealName:
+            meal?.mealName ||
+            meal?.meal ||
+            `Meal ${index + 1}`,
+
+          foods: Array.isArray(meal?.foods)
+            ? meal.foods.map((food) => {
+                if (typeof food === "string") {
+                  return food;
+                }
+
+                return (
+                  food?.name ||
+                  food?.food ||
+                  "Food item"
+                );
+              })
+            : [],
+
+          estimatedCalories:
+            Number(
+              meal?.estimatedCalories ||
+              meal?.calories
+            ) || 0,
+        }))
+      : [],
+
+    notes:
+      typeof plan?.notes === "string"
+        ? plan.notes
+        : "",
+  };
+};
+
 /*
   Basic validation prevents incomplete AI responses
   from being saved to MongoDB.
@@ -53,7 +177,16 @@ const isValidWorkoutPlan = (plan) => {
         Number(plan.workoutDays)
       ) &&
       Array.isArray(plan.exercises) &&
-      plan.exercises.length > 0
+      plan.exercises.length > 0 &&
+      plan.exercises.every(
+        (day) => 
+          Array.isArray(day.workout) &&
+        day.workout.length > 0 &&
+        day.workout.every(
+          (exercise) => 
+            typeof exercise === "string"
+        )
+      )
   );
 };
 
@@ -67,7 +200,13 @@ const isValidDietPlan = (plan) => {
         Number(plan.dailyCalories)
       ) &&
       Array.isArray(plan.meals) &&
-      plan.meals.length > 0
+      plan.meals.length > 0 &&
+      plan.meals.every(
+        (meal) =>
+          typeof meal.mealName === "string" &&
+        meal.mealName.trim() &&
+        Array.isArray(meal.foods)
+      )
   );
 };
 
@@ -147,11 +286,18 @@ Return this exact structure:
         },
       });
 
-    const aiPlan = parseAIResponse(
-      response.text
+  const aiPlan = parseAIResponse(
+  response.text
+);
+    const normalizedPlan =
+      normalizeWorkoutPlan(aiPlan);
+
+    console.log(
+      "NORMALIZED AI WORKOUT:",
+      JSON.stringify(normalizedPlan, null, 2)
     );
 
-    if (!isValidWorkoutPlan(aiPlan)) {
+    if (!isValidWorkoutPlan(normalizedPlan)) {
       throw new Error(
         "Gemini returned an incomplete workout plan."
       );
@@ -162,13 +308,7 @@ Return this exact structure:
     );
 
     return {
-      plan: {
-        ...aiPlan,
-        weeks: Number(aiPlan.weeks),
-        workoutDays: Number(
-          aiPlan.workoutDays
-        ),
-      },
+      plan: normalizedPlan,
       source: "ai",
       fallbackUsed: false,
     };
@@ -282,7 +422,15 @@ Return this exact structure:
       response.text
     );
 
-    if (!isValidDietPlan(aiPlan)) {
+    const normalizedPlan =
+      normalizeDietPlan(aiPlan);
+
+    console.log(
+      "NORMALIZED AI DIET:",
+      JSON.stringify(normalizedPlan, null, 2)
+    );
+
+    if (!isValidDietPlan(normalizedPlan)) {
       throw new Error(
         "Gemini returned an incomplete diet plan."
       );
@@ -293,15 +441,7 @@ Return this exact structure:
     );
 
     return {
-      plan: {
-        ...aiPlan,
-        dailyCalories: Number(
-          aiPlan.dailyCalories
-        ),
-        protein: Number(aiPlan.protein),
-        carbs: Number(aiPlan.carbs),
-        fat: Number(aiPlan.fat),
-      },
+      plan: normalizedPlan,
       source: "ai",
       fallbackUsed: false,
     };

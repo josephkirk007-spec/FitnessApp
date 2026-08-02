@@ -2,5 +2,9 @@
 node_modules/
 
 # Environment variables
+dist/
 .env
+.env.local
+.env.production
+.vercel/
 

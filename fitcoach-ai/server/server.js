@@ -18,13 +18,23 @@ app.get('/', (req, res) => {
   res.send('FitCoach AI API is running...');
 });
 
-app.use('/api/v1/auth', require('./routes/authRoutes'));
-app.use('/api/v1/clients', require('./routes/clientRoutes'));
-app.use('/api/v1/workouts', require("./routes/workoutPlanRoutes"));
-app.use('/api/v1/diets', require("./routes/dietPlanRoutes"));
+//app.use('/api/v1/auth', require('./routes/authRoutes'));
+//app.use('/api/v1/clients', require('./routes/clientRoutes'));
+//app.use('/api/v1/workouts', require("./routes/workoutPlanRoutes"));
+//app.use('/api/v1/diets', require("./routes/dietPlanRoutes"));
 
 const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-});
+mongoose
+  .connect(process.env.MONGO_URI)
+  .then(() => {
+    console.log('MongoDB connected');
+
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+  })
+  .catch((err) => console.log('MongoDB connection error:', err));
+  
+
+export default app;
