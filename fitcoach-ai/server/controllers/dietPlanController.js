@@ -38,6 +38,18 @@ const generateAndSaveDietPlan = async (
         client: client._id,
         coach: req.user._id,
 
+        //Required by the DietPlan Schema
+        dietPreference:
+          generatedPlan.dietPreference ||
+          client.dietPreference ||
+          "Balanced",
+
+        // Keep the Client's food restrictions in the diet plan
+        foodRestrictions:
+          generatedPlan.foodRestrictions ||
+          client.foodRestrictions ||
+          "None",
+
         generationSource:
           generationResult.source,
 

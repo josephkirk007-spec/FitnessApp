@@ -8,7 +8,10 @@ function Navbar() {
 
   return (
     <header className="navbar">
-      <Link to="/dashboard" className="navbar-brand">
+      <Link to= {
+        user?.role === "client" ? "/client-dashboard" : "/dashboard"
+      } 
+        className="navbar-brand">
         <img
           src={logo}
           alt="Titan Trainer"
@@ -22,6 +25,8 @@ function Navbar() {
       </Link>
 
       <nav className="navbar-links">
+        {user?.role === "coach" && (
+          <>
         <NavLink
           to="/dashboard"
           className={({ isActive }) =>
@@ -48,7 +53,42 @@ function Navbar() {
         >
           Saved Plans
         </NavLink>
+        </>
+      )}
+        
+        {user?.role === "client" && (
+          <>
+          <NavLink
+            to="/client-dashboard"
+            className={({ isActive }) =>
+              isActive ? "nav-link active-nav-link" : "nav-link"
+            }
+          >
+            My Dashboard
+          </NavLink>
 
+          <NavLink
+            to="/client-dashboard#workouts"
+            className={({ isActive }) =>
+              isActive ? "nav-link active-nav-link" : "nav-link"
+            }
+          >
+            My Workout
+          </NavLink>
+
+          <NavLink
+            to="/client-dashboard#diet"
+            className={({ isActive }) =>
+              isActive ? "nav-link active-nav-link" : "nav-link"
+            }
+          >
+            My Diet
+          </NavLink>
+          </>
+        )}
+
+        {user && (
+          <>
         <span className="navbar-user">
           Welcome, {user?.name || "Coach"}
         </span>
@@ -60,6 +100,8 @@ function Navbar() {
         >
           Log Out
         </button>
+        </>
+      )}
       </nav>
     </header>
   );

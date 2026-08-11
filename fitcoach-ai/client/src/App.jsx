@@ -13,6 +13,7 @@ import SavedPlans from "./pages/SavedPlans";
 import BackgroundLayout from "./components/BackgroundLayout";
 import Footer from "./components/Footer";
 import ForgotPassword from "./pages/ForgotPassword";
+import ClientDashboard from "./pages/ClientDashboard";
 
 function App() {
   const{ user } = useAuth();
@@ -21,7 +22,8 @@ function App() {
          <BackgroundLayout>
           <Routes>
             <Route path="/" 
-              element={<Navigate to= {user ? "/dashboard" : "/login"} 
+              element={<Navigate to= { !user ? "/login" : user.role === "client" ? "/client-dashboard" : "/dashboard"
+              }
               replace
               />
           }
@@ -41,6 +43,7 @@ function App() {
               <Route path="/clients/:id/edit" element={<EditClient />} />
               <Route path="/plans" element={<Plans />} />
               <Route path="/saved-plans" element={<SavedPlans />} />
+              <Route path="/client-dashboard" element={<ClientDashboard />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

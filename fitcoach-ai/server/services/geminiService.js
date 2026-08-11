@@ -146,14 +146,36 @@ const normalizeDietPlan = (plan) => {
                 );
               })
             : [],
-
+          calories: Number(
+            meal?.calories ??
+              meal?.estimatedCalories ??
+              0
+          ),
           estimatedCalories:
             Number(
-              meal?.estimatedCalories ||
-              meal?.calories
-            ) || 0,
+              meal?.estimatedCalories ??
+              meal?.calories ?? 
+              0
+            ),
+            protein: Number(
+              meal?.protein ??
+              meal?.marco?.protein ??
+              0
+            ),
+          carbs: Number(
+            meal?.carbs ??
+            meal?.carbohydrates ??
+            meal?.marco?.carbs ??
+            meal?.marco?.carbohydrates ??
+            0
+          ),
+          fat: Number(
+            meal?.fat ??
+              meal?.marco?.fat ??
+              0
+          ),
         }))
-      : [],
+        : [],
 
     notes:
       typeof plan?.notes === "string"
@@ -395,12 +417,15 @@ Return this exact structure:
   "fat": 70,
   "meals": [
     {
-      "meal": "Breakfast",
+      "mealName": "Breakfast",
       "foods": [
         "food one",
         "food two"
       ],
-      "estimatedCalories": 500
+      "calories": 500,
+      "protein": 40,
+      "carbs": 55,
+      "fat": 15
     }
   ],
   "notes": "string"

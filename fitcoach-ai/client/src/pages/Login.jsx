@@ -38,7 +38,11 @@ function Login() {
 
                 saveUser(response.data)
 
-                navigate("/dashboard");
+                if(response.data.role === "client") {
+                    navigate("/client-dashboard");
+                } else {
+                    navigate("/dashboard");
+                }
             } catch (error) {
                 console.error("Login error:", error);
 

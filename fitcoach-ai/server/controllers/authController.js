@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const Client = require('../models/Client');
 
 const generateToken = (userId) => {
     return jwt.sign({ id: userId }, process.env.JWT_SECRET, {
@@ -74,6 +75,8 @@ const loginUser = async (req, res) => {
             _id: user._id,
             name: user.name,
             email: user.email,
+            role: user.role,
+            client: user.client,
             token: generateToken(user._id),
         });
     } catch (error) {
@@ -172,8 +175,85 @@ const resetPassword = async (req, res) => {
   }
 };
 
+const createClientLogin = async (req, res) => {
+  try {
+    const { clientId, email, password } = req.body;
+
+    if (!clientId || !email || !password) {
+      return res.status(400).json({
+        message:
+          "Client ID, email, and password are required",
+      });
+    }
+
+    const client = await Client.findOne({
+      _id: clientId,
+      coach: req.user._id,
+    });
+
+    if (!client) {
+      return res.status(404).json({
+        message: "Client not found",
+      });
+    }
+
+    const existingUser = await User.findOne({
+      email: email.trim().toLowerCase(),
+    });
+
+    if (existingUser) {
+      return res.status(400).json({
+        message:
+          "A login already exists with this email",
+      });
+    }
+
+    const hashedPassword = await bcrypt.hash(
+      password,
+      10
+    );
+
+    const clientUser = await User.create({
+      name: client.name,
+
+      email:
+        email.trim().toLowerCase(),
+
+      password: hashedPassword,
+
+      role: "client",
+
+      client: client._id,
+    });
+
+    return res.status(201).json({
+      message:
+        "Client login created successfully",
+
+      user: {
+        _id: clientUser._id,
+        name: clientUser.name,
+        email: clientUser.email,
+        role: clientUser.role,
+        client: clientUser.client,
+      },
+    });
+  } catch (error) {
+    console.error(
+      "CREATE CLIENT LOGIN ERROR:",
+      error
+    );
+
+    return res.status(500).json({
+      message:
+        error.message ||
+        "Unable to create client login",
+    });
+  }
+};
+
 const getMe = async (req, res) => {
     res.json(req.user);
 };
 
-module.exports = { registerUser, loginUser, resetPassword, getMe };
+module.exports = { registerUser, loginUser, resetPassword, createClientLogin, getMe };
