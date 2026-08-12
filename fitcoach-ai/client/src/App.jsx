@@ -14,6 +14,7 @@ import BackgroundLayout from "./components/BackgroundLayout";
 import Footer from "./components/Footer";
 import ForgotPassword from "./pages/ForgotPassword";
 import ClientDashboard from "./pages/ClientDashboard";
+import ChangePassword from "./pages/ChangePassword";
 
 function App() {
   const{ user } = useAuth();
@@ -48,6 +49,7 @@ function App() {
 
             <Route element={<ProtectedRoute  allowedRoles={["client"]} />}>
               <Route path="/client-dashboard" element={<ClientDashboard />} />
+              <Route path="/change-password" element={<ChangePassword />} />
             </Route>
 
             <Route path="*" element={<Navigate to="/" replace />} />

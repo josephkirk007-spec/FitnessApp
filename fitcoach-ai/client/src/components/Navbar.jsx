@@ -84,6 +84,15 @@ function Navbar() {
           >
             My Diet
           </NavLink>
+
+          <NavLink
+            to="/change-password"
+            className={({ isActive }) =>
+              isActive ? "nav-link active-nav-link" : "nav-link"
+            }
+          >
+            Change Password
+          </NavLink>
           </>
         )}
 

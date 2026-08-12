@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import { useLocation } from "react-router-dom";
+import api from "../services/api";
+import Navbar from "../components/Navbar";
 
 function ClientDashboard() {
+  const location = useLocation();
+
   const [client, setClient] = useState(null);
   const [workoutPlans, setWorkoutPlans] = useState([]);
   const [dietPlans, setDietPlans] = useState([]);
@@ -11,20 +15,11 @@ function ClientDashboard() {
   useEffect(() => {
     const fetchPortal = async () => {
       try {
-        const user = JSON.parse(localStorage.getItem("user"));
+        setLoading(true);
+        setMessage("");
 
-        const token =
-          user?.token ||
-          localStorage.getItem("token");
-
-        const response = await axios.get(
-          "http://localhost:5000/api/v1/portal/me",
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        const response = await api.get(
+          "/portal/me");
 
         setClient(response.data.client);
         setWorkoutPlans(response.data.workoutPlans || []);
@@ -44,11 +39,25 @@ function ClientDashboard() {
     fetchPortal();
   }, []);
 
+  useEffect(() => {
+    if (!loading && location.hash) {
+      const section = document.querySelector(location.hash);
+      if (section) {
+        section.scrollIntoView({ 
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+    }
+  }, [location.hash, loading]);
+
   if (loading) {
     return <p>Loading your Titan plans...</p>;
   }
 
   return (
+    <>
+    <Navbar />
     <main className="client-dashboard">
       <section className="client-dashboard-header">
         <h1>
@@ -98,7 +107,9 @@ function ClientDashboard() {
         </section>
       )}
 
-      <section className="client-plan-section">
+      <section
+        id="workouts"
+        className="client-plan-section">
         <h2>My Workout Plans</h2>
 
         {workoutPlans.length === 0 ? (
@@ -161,7 +172,9 @@ function ClientDashboard() {
         )}
       </section>
 
-      <section className="client-plan-section">
+      <section
+        id="diet"
+        className="client-plan-section">
         <h2>My Diet Plans</h2>
 
         {dietPlans.length === 0 ? (
@@ -240,6 +253,7 @@ function ClientDashboard() {
         )}
       </section>
     </main>
+    </>
   );
 }
 
