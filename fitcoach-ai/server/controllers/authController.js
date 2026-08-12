@@ -176,6 +176,11 @@ const resetPassword = async (req, res) => {
 };
 
 const createClientLogin = async (req, res) => {
+  console.log("✅ CREATE CLIENT LOGIN CONTROLLER REACHED");
+  console.log("BODY:", req.body);
+  console.log("COACH:", req.user?._id);
+  console.log("ROLE:", req.user?.role);
+  
   try {
     const { clientId, email, password } = req.body;
 

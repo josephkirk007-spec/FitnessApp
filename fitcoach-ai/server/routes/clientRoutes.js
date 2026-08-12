@@ -9,18 +9,19 @@ const {
 } = require('../controllers/clientController');
 
 const { protect } = require('../middleware/authMiddleware');
+const { coachOnly } = require('../middleware/roleMiddleware');
 
 const router = express.Router();
 
 router
  .route('/')
- .get(protect, getClients)
- .post(protect, createClient);
+ .get(protect, coachOnly, getClients)
+ .post(protect, coachOnly, createClient);
 
  router
   .route('/:id')
-  .get(protect, getClientById)
-  .put(protect, updateClient)
-  .delete(protect, deleteClient);
+  .get(protect, coachOnly, getClientById)
+  .put(protect, coachOnly, updateClient)
+  .delete(protect, coachOnly, deleteClient);
 
 module.exports = router;

@@ -33,9 +33,14 @@ const protect = async (req, res, next) => {
       decoded.userId ||
       decoded._id;
 
+    console.log("Decoded Token:", decoded);
+    console.log("User ID from Token:", userId);
+
     const user = await User.findById(
       userId
     ).select("-password");
+
+    console.log("Found User:", user);
 
     if (!user) {
       return res.status(401).json({

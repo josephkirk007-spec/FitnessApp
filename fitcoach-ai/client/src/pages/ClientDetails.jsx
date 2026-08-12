@@ -23,6 +23,11 @@ function ClientDetails() {
   const [dietPlan, setDietPlan] = useState(null);
   const [generatingDiet, setGeneratingDiet] = useState(false);
   const [dietMessage, setDietMessage] = useState("");
+  const [loginData, setLoginData] = useState({
+    email: "",
+    password: "",
+  });
+  const [loginMessage, setLoginMessage] = useState("");
 
   useEffect(() => {
     const fetchClient = async () => {
@@ -194,6 +199,35 @@ const generateDietPlan = async () => {
   }
 };
 
+const handleCreateClientLogin = async () => {
+  try {
+    setLoginMessage("");
+
+    const response = await api.post(
+      "/auth/client-login",
+      {
+        clientId: client._id,
+        email: loginData.email.trim().toLowerCase(),
+        password: loginData.password,
+      }
+    );
+
+    setLoginMessage(response.data.message || "Client login created successfully.");
+
+    setLoginData({
+      email: "",
+      password: "",
+    });
+  } catch (error) {
+    console.error("CREATE CLIENT LOGIN ERROR:", error);
+
+    setLoginMessage(
+      error.response?.data?.message ||
+        "Unable to create client login"
+    );
+  }
+};
+
   return (
     <>
       <Navbar />
@@ -335,7 +369,62 @@ const generateDietPlan = async () => {
                   ? "Generating Diet Plan..."
                    : "Generate Diet Plan"}
               </button>
-            </section>
+
+              <section className="client-login-section">
+  <h2>Client Portal Access</h2>
+
+  <p>
+    Create login credentials so this client can view
+    their workout and diet plans.
+  </p>
+
+  {loginMessage && (
+    <p className="message">
+      {loginMessage}
+    </p>
+  )}
+
+  <div className="form-group">
+    <label>Client Email</label>
+
+    <input
+      type="email"
+      value={loginData.email}
+      onChange={(e) =>
+        setLoginData({
+          ...loginData,
+          email: e.target.value,
+        })
+      }
+      placeholder="client@email.com"
+    />
+  </div>
+
+  <div className="form-group">
+    <label>Temporary Password</label>
+
+    <input
+      type="password"
+      value={loginData.password}
+      onChange={(e) =>
+        setLoginData({
+          ...loginData,
+          password: e.target.value,
+        })
+      }
+      placeholder="Temporary password"
+    />
+  </div>
+
+  <button
+    type="button"
+    onClick={handleCreateClientLogin}
+    className="primary-button"
+  >
+    Create Client Login
+  </button>
+</section>
+</section>
 
             {deleteMessage && (
               <p className="error-message">{deleteMessage}</p>

@@ -1,4 +1,9 @@
 const coachOnly = (req, res, next) => {
+
+  console.log("Coach Only user:", req.user);
+  console.log("Coach Only role:", req.user?.role);
+
+  
   if (!req.user) {
     return res.status(401).json({
       message: "Not authorized",

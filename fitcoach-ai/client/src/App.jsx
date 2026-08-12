@@ -35,7 +35,7 @@ function App() {
 
             <Route path="/forgot-password" element={<ForgotPassword />} />
 
-            <Route element={<ProtectedRoute />}>
+            <Route element={<ProtectedRoute  allowedRoles={["coach"]} />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/clients" element={<Clients />} />
               <Route path="/clients/add" element={<AddClients />} />
@@ -43,6 +43,10 @@ function App() {
               <Route path="/clients/:id/edit" element={<EditClient />} />
               <Route path="/plans" element={<Plans />} />
               <Route path="/saved-plans" element={<SavedPlans />} />
+
+            </Route>
+
+            <Route element={<ProtectedRoute  allowedRoles={["client"]} />}>
               <Route path="/client-dashboard" element={<ClientDashboard />} />
             </Route>
 

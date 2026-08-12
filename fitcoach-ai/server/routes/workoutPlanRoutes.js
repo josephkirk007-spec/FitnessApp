@@ -11,20 +11,21 @@ const {
 
 
 const { protect } = require("../middleware/authMiddleware");
+const { coachOnly } = require("../middleware/roleMiddleware");
 
 const router = express.Router();
 
 router
   .route("/")
-  .get(protect, getWorkoutPlans)
-  .post(protect, createWorkoutPlan);
+  .get(protect, coachOnly, getWorkoutPlans)
+  .post(protect, coachOnly, createWorkoutPlan);
 
-router.post("/generate/:clientId", protect, generateAndSaveWorkoutPlan);
+router.post("/generate/:clientId", protect, coachOnly, generateAndSaveWorkoutPlan);
 
 router
   .route("/:id")
-  .get(protect, getWorkoutPlanById)
-  .put(protect, updateWorkoutPlan)
-  .delete(protect, deleteWorkoutPlan);
+  .get(protect, coachOnly, getWorkoutPlanById)
+  .put(protect, coachOnly, updateWorkoutPlan)
+  .delete(protect, coachOnly, deleteWorkoutPlan);
 
 module.exports = router;
