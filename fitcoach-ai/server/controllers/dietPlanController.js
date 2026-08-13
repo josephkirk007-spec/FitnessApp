@@ -183,6 +183,9 @@ const updateDietPlan = async (req, res) => {
           new: true,
           runValidators: true,
         }
+      ).populate(
+        "client",
+        "name goal dietPreference foodRestrictions"
       );
 
     return res.status(200).json(updatedDietPlan);

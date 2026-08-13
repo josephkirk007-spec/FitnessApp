@@ -145,6 +145,9 @@ const updateWorkoutPlan = async (req, res) => {
           new: true,
           runValidators: true,
         }
+      ).populate(
+        "client",
+        "name goal fitnessLevel workoutDays equipment"
       );
 
     return res.status(200).json(updatedWorkoutPlan);

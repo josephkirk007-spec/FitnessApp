@@ -7,6 +7,8 @@ function WorkoutPlanCard({
 }) {
   const [editing, setEditing] =
     useState(false);
+  const [showDetails, setShowDetails] =
+    useState(false);
 
   const [formData, setFormData] =
     useState({
@@ -67,6 +69,45 @@ function WorkoutPlanCard({
               <strong>Notes:</strong>{" "}
               {plan.notes}
             </p>
+          )}
+
+          {Array.isArray(plan.exercises) && plan.exercises.length > 0 && (
+            <>
+              <button
+                type="button"
+                className="details-button"
+                onClick={() =>
+                  setShowDetails((current) => !current)}
+              >
+                {showDetails ? "Hide Workout Details" : "View Workout Details"}
+              </button>
+
+              {showDetails && (
+                <div className="workout-details">
+                  {plan.exercises.map((day, dayIndex) => (
+                    <div className="workout-day-card" 
+                      key={day._id || `${plan._id}-${dayIndex}`}>
+                      <h3>{day.day || `Day ${dayIndex + 1}`}</h3>
+
+                      {day.focus && (
+                        <p>
+                          <strong>Focus:</strong>{" "}
+                          {day.focus}
+                        </p>
+                      )}
+
+                      <ul>
+                        {(day.workout || []).map((exercise, exerciseIndex) => (
+                          <li key={`${plan._id}-${dayIndex}-${exerciseIndex}`}>
+                             {typeof exercise === "string" ? exercise : exercise.name || "Exercise"}
+                             </li>
+                          ))}
+                      </ul>
+                    </div>
+                  ))}
+                  </div>
+              )}
+            </>
           )}
 
           <div className="plan-actions">

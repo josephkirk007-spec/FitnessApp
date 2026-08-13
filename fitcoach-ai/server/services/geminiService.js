@@ -38,7 +38,7 @@ const parseAIResponse = (text) => {
   return JSON.parse(cleanedText);
 };
 
-const normalizeWorkoutPlan = (plan) => {
+const normalizeWorkoutPlan = (plan, expectedWorkoutDays) => {
   return {
     ...plan,
 
@@ -50,6 +50,7 @@ const normalizeWorkoutPlan = (plan) => {
     weeks: Number(plan?.weeks) || 4,
 
     workoutDays:
+      Number(expectedWorkoutDays) ||
       Number(plan?.workoutDays) ||
       plan?.exercises?.length ||
       3,
@@ -188,28 +189,35 @@ const normalizeDietPlan = (plan) => {
   Basic validation prevents incomplete AI responses
   from being saved to MongoDB.
 */
-const isValidWorkoutPlan = (plan) => {
-  return Boolean(
-    plan &&
-      typeof plan === "object" &&
-      typeof plan.title === "string" &&
-      plan.title.trim() &&
-      Number.isFinite(Number(plan.weeks)) &&
-      Number.isFinite(
-        Number(plan.workoutDays)
-      ) &&
-      Array.isArray(plan.exercises) &&
-      plan.exercises.length > 0 &&
-      plan.exercises.every(
-        (day) => 
-          Array.isArray(day.workout) &&
-        day.workout.length > 0 &&
-        day.workout.every(
-          (exercise) => 
-            typeof exercise === "string"
-        )
-      )
-  );
+const isValidWorkoutPlan = (plan, requestedDays) => {
+  const days = Number(requestedDays);
+
+  if (!plan) {
+    return false;
+  }
+
+  if (!Array.isArray(plan.exercises)) {
+    return false;
+  }
+
+  if (plan.exercises.length !== days) {
+    console.log(
+      `Invalid workout plan: expected ${days} days but received ${plan.exercises.length}`
+    );
+
+    return false;
+  }
+
+  const everyDayIsValid = plan.exercises.every((day) => {
+    return (
+      day &&
+      day.day &&
+      Array.isArray(day.workout) &&
+      day.workout.length > 0
+    );
+  });
+
+  return everyDayIsValid;
 };
 
 const isValidDietPlan = (plan) => {
@@ -269,6 +277,10 @@ REQUIREMENTS:
 - Use different exercises on different days.
 - Include sets, repetitions, and rest periods.
 - Keep the plan appropriate for the fitness level.
+- You MUST generate exactly ${client.workoutDays} workout days.
+- The exercises array MUST contain exactly ${client.workoutDays} objects.
+- For example, if workoutDays is 6: exercises must contain 6 objects, one for each day.
+- Do not return fewer workout days than specified.
 - Avoid extreme or unsafe recommendations.
 - Return only valid JSON.
 - Do not use Markdown.
@@ -278,7 +290,7 @@ Return this exact structure:
 {
   "title": "string",
   "weeks": 4,
-  "workoutDays": 3,
+  "workoutDays": ${client.workoutDays || 3},
   "exercises": [
     {
       "day": "Day 1",
@@ -311,15 +323,23 @@ Return this exact structure:
   const aiPlan = parseAIResponse(
   response.text
 );
+    const expectedWorkoutDays =
+      Number(client.workoutDays) || 3;
     const normalizedPlan =
-      normalizeWorkoutPlan(aiPlan);
+      normalizeWorkoutPlan(aiPlan, expectedWorkoutDays);
 
     console.log(
       "NORMALIZED AI WORKOUT:",
       JSON.stringify(normalizedPlan, null, 2)
     );
 
-    if (!isValidWorkoutPlan(normalizedPlan)) {
+    if(!Array.isArray(normalizedPlan.exercises) || normalizedPlan.exercises.length !== expectedWorkoutDays) {
+      throw new Error(
+        `Gemini returned ${normalizedPlan.exercises.length} workout days, but ${expectedWorkoutDays} were expected.`
+      );
+    }
+
+    if (!isValidWorkoutPlan(normalizedPlan, expectedWorkoutDays)) {
       throw new Error(
         "Gemini returned an incomplete workout plan."
       );

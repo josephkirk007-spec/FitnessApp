@@ -532,3 +532,502 @@ button:disabled {
   min-height: 100px;
   resize: vertical;
 }
+
+/* =====================================================
+   SAVED PLANS PAGE
+===================================================== */
+
+.plans-page {
+  width: min(1200px, 92%);
+  margin: 0 auto;
+  padding: 2.5rem 0 4rem;
+}
+
+.plans-page .page-heading {
+  margin-bottom: 1.5rem;
+}
+
+.plans-page .page-heading h1 {
+  font-size: clamp(2rem, 4vw, 3rem);
+  margin-bottom: 0.4rem;
+  color: #ffffff;
+}
+
+.plans-page .page-heading p {
+  color: #cbd5e1;
+  font-size: 1rem;
+}
+
+
+/* =====================================================
+   WORKOUT / DIET TABS
+===================================================== */
+
+.plan-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin: 1.5rem 0 2rem;
+}
+
+.plan-tab {
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+
+  padding: 0.75rem 1.25rem;
+
+  border: 1px solid rgba(255, 215, 0, 0.35);
+  border-radius: 999px;
+
+  background: rgba(15, 23, 42, 0.85);
+  color: #ffffff;
+
+  text-decoration: none;
+  font-weight: 700;
+
+  transition:
+    transform 0.2s ease,
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.plan-tab:hover {
+  transform: translateY(-2px);
+
+  border-color: #facc15;
+
+  background: rgba(250, 204, 21, 0.12);
+
+  box-shadow:
+    0 8px 20px rgba(0, 0, 0, 0.3),
+    0 0 14px rgba(250, 204, 21, 0.1);
+}
+
+.active-plan-tab {
+  background: linear-gradient(
+    135deg,
+    #fde047,
+    #f59e0b
+  );
+
+  color: #111827;
+
+  border-color: transparent;
+
+  box-shadow:
+    0 8px 20px rgba(245, 158, 11, 0.25);
+}
+
+
+/* =====================================================
+   SAVED PLAN GRID
+===================================================== */
+
+.plan-list,
+.plans-grid,
+.saved-plans-list {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(320px, 1fr));
+
+  gap: 1.5rem;
+  align-items: start;
+}
+
+
+/* =====================================================
+   PLAN CARDS
+===================================================== */
+
+.plan-card,
+.diet-plan-card,
+.workout-plan-card {
+  position: relative;
+  overflow: hidden;
+
+  padding: 1.5rem;
+
+  border-radius: 18px;
+
+  border: 1px solid rgba(250, 204, 21, 0.25);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 23, 42, 0.93),
+      rgba(30, 41, 59, 0.88)
+    );
+
+  backdrop-filter: blur(8px);
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.35);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+.plan-card:hover,
+.diet-plan-card:hover,
+.workout-plan-card:hover {
+  transform: translateY(-6px);
+
+  border-color: rgba(250, 204, 21, 0.7);
+
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.45),
+    0 0 20px rgba(250, 204, 21, 0.08);
+}
+
+
+/* yellow accent line */
+
+.plan-card::before,
+.diet-plan-card::before,
+.workout-plan-card::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 4px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #facc15,
+      #f59e0b
+    );
+}
+
+
+/* =====================================================
+   CARD HEADINGS
+===================================================== */
+
+.plan-card h2,
+.plan-card h3,
+.diet-plan-card h2,
+.diet-plan-card h3,
+.workout-plan-card h2,
+.workout-plan-card h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+
+  color: white;
+
+  line-height: 1.25;
+}
+
+
+/* =====================================================
+   PLAN INFORMATION
+===================================================== */
+
+.plan-card p,
+.diet-plan-card p,
+.workout-plan-card p {
+  margin: 0.45rem 0;
+
+  color: #e5e7eb;
+
+  line-height: 1.5;
+}
+
+.plan-card strong,
+.diet-plan-card strong,
+.workout-plan-card strong {
+  color: #facc15;
+}
+
+
+/* =====================================================
+   PLAN BUTTONS
+===================================================== */
+
+.plan-card button,
+.diet-plan-card button,
+.workout-plan-card button {
+  border: none;
+  border-radius: 10px;
+
+  padding: 0.7rem 1rem;
+
+  margin-top: 0.8rem;
+  margin-right: 0.5rem;
+
+  cursor: pointer;
+
+  font-weight: 700;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease,
+    opacity 0.2s ease;
+}
+
+.plan-card button:hover,
+.diet-plan-card button:hover,
+.workout-plan-card button:hover {
+  transform: translateY(-2px);
+}
+
+
+/* first button = update */
+
+.plan-card button:first-of-type,
+.diet-plan-card button:first-of-type,
+.workout-plan-card button:first-of-type {
+  background:
+    linear-gradient(
+      135deg,
+      #f8fafc,
+      #d1d5db
+    );
+
+  color: #111827;
+}
+
+
+/* last button = delete */
+
+.plan-card button:last-of-type,
+.diet-plan-card button:last-of-type,
+.workout-plan-card button:last-of-type {
+  background:
+    linear-gradient(
+      135deg,
+      #ef4444,
+      #b91c1c
+    );
+
+  color: white;
+}
+
+.plan-card button:last-of-type:hover,
+.diet-plan-card button:last-of-type:hover,
+.workout-plan-card button:last-of-type:hover {
+  box-shadow:
+    0 8px 20px rgba(239, 68, 68, 0.3);
+}
+
+
+/* =====================================================
+   SUCCESS / ERROR MESSAGE
+===================================================== */
+
+.plans-page .message,
+.plans-page .success-message {
+  margin: 1rem 0 1.5rem;
+
+  padding: 0.9rem 1rem;
+
+  border-radius: 10px;
+
+  background: rgba(34, 197, 94, 0.12);
+
+  border: 1px solid rgba(34, 197, 94, 0.45);
+
+  color: #bbf7d0;
+
+  font-weight: 600;
+}
+
+.plans-page .error-message {
+  margin: 1rem 0;
+
+  padding: 0.9rem 1rem;
+
+  border-radius: 10px;
+
+  background: rgba(239, 68, 68, 0.12);
+
+  border: 1px solid rgba(239, 68, 68, 0.45);
+
+  color: #fecaca;
+}
+
+
+/* =====================================================
+   EMPTY STATE
+===================================================== */
+
+.empty-state {
+  max-width: 600px;
+
+  margin: 3rem auto;
+
+  padding: 2rem;
+
+  text-align: center;
+
+  border-radius: 18px;
+
+  background: rgba(15, 23, 42, 0.9);
+
+  border: 1px solid rgba(250, 204, 21, 0.25);
+
+  box-shadow:
+    0 15px 35px rgba(0, 0, 0, 0.3);
+}
+
+.empty-state h2 {
+  margin-top: 0;
+
+  color: white;
+}
+
+.empty-state p {
+  color: #cbd5e1;
+}
+
+.primary-link {
+  display: inline-block;
+
+  margin-top: 1rem;
+
+  padding: 0.75rem 1.25rem;
+
+  border-radius: 10px;
+
+  background:
+    linear-gradient(
+      135deg,
+      #fde047,
+      #f59e0b
+    );
+
+  color: #111827;
+
+  text-decoration: none;
+
+  font-weight: 800;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.primary-link:hover {
+  transform: translateY(-2px);
+
+  box-shadow:
+    0 10px 24px rgba(245, 158, 11, 0.25);
+}
+
+
+/* =====================================================
+   MOBILE
+===================================================== */
+
+@media (max-width: 700px) {
+
+  .plans-page {
+    width: 94%;
+    padding-top: 1.5rem;
+  }
+
+  .plan-tabs {
+    width: 100%;
+  }
+
+  .plan-tab {
+    flex: 1;
+  }
+
+  .plan-list,
+  .plans-grid,
+  .saved-plans-list {
+    grid-template-columns: 1fr;
+  }
+
+  .plan-card,
+  .diet-plan-card,
+  .workout-plan-card {
+    padding: 1.2rem;
+  }
+}
+
+/* ========================================
+   WORKOUT PLAN DETAILS
+======================================== */
+
+.details-button {
+  margin: 14px 0;
+  padding: 10px 18px;
+  border: 1px solid #f5c542;
+  border-radius: 8px;
+  background: linear-gradient(135deg, #f5c542, #d89b18);
+  color: #111827;
+  font-weight: 700;
+  cursor: pointer;
+  transition: 0.25s ease;
+}
+
+.details-button:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 18px rgba(245, 197, 66, 0.3);
+}
+
+/* Container holding all workout days */
+.workout-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 15px;
+  padding-top: 15px;
+  border-top: 1px solid rgba(245, 197, 66, 0.35);
+}
+
+/* Individual day */
+.workout-day-card {
+  padding: 18px;
+  border-radius: 12px;
+  border: 1px solid rgba(245, 197, 66, 0.45);
+  background: rgba(8, 18, 45, 0.72);
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.25);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.workout-day-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 10px 25px rgba(245, 197, 66, 0.18);
+}
+
+.workout-day-card h3 {
+  margin: 0 0 10px;
+  color: #f5c542;
+  font-size: 1.15rem;
+}
+
+.workout-day-card p {
+  margin: 6px 0 12px;
+}
+
+.workout-day-card p strong {
+  color: #f5c542;
+}
+
+.workout-day-card ul {
+  margin: 0;
+  padding-left: 20px;
+}
+
+.workout-day-card li {
+  margin-bottom: 7px;
+  line-height: 1.45;
+  color: #f4f4f4;
+}
+
+/* Tablet / phone */
+@media (max-width: 800px) {
+  .workout-details {
+    grid-template-columns: 1fr;
+  }
+}
