@@ -15,7 +15,10 @@ app.use(express.json());
 
 // Test route
 app.get('/', (req, res) => {
-  res.send('FitCoach AI API is running...');
+  res.json({
+    success: true,
+    message: 'Titan Trainer API is running...'
+  });
 });
 
 app.use('/api/v1/auth', require('./routes/authRoutes'));
@@ -34,3 +37,4 @@ app.listen(PORT, () => {
 });
   
 
+export default app;
