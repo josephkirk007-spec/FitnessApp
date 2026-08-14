@@ -10,6 +10,19 @@ const connectDB = require('./config/db');
 connectDB();
 const app = express();
 // Middleware
+app.use(async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error("Database Middleware error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Database connection error",
+    });
+  }
+});
 app.use(cors());
 app.use(express.json());
 
@@ -29,8 +42,6 @@ app.use("/api/v1/portal", require("./routes/clientPortalRoutes")
 );
 
 const PORT = process.env.PORT || 5000;
-
-connectDB();
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
