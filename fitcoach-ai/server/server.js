@@ -4,12 +4,11 @@ const express = require('express');
 
 const cors = require('cors');
 const connectDB = require('./config/db');
-
-
-// Connect to MongoDB
-connectDB();
 const app = express();
 // Middleware
+app.use(cors());
+app.use(express.json());
+
 app.use(async (req, res, next) => {
   try {
     await connectDB();
@@ -23,8 +22,6 @@ app.use(async (req, res, next) => {
     });
   }
 });
-app.use(cors());
-app.use(express.json());
 
 // Test route
 app.get('/', (req, res) => {
