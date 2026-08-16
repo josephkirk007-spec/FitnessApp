@@ -131,11 +131,15 @@ function Dashboard() {
           
           <main className="dashboard-page">
             <section className="dashboard-header">
-                <h1> Welcome, {user?.name || "Coach"} </h1>
+                <div>
+                    <p className="dashboard-eyebrow"> COACH COMMAND CENTER </p>
+                  
+                    <h1> Welcome, {user?.name || "Coach"} </h1>
 
-                <p>
-                    Manage your clients and create personalized workout and diet plans.
-                </p>
+                    <p>
+                      Manage your clients and create personalized workout and diet plans.
+                    </p>
+                </div>
             </section>
 
             {message && (
