@@ -1030,4 +1030,339 @@ button:disabled {
   .workout-details {
     grid-template-columns: 1fr;
   }
+} 
+
+/* =====================================================
+   TITAN TRAINER FINAL UNIFIED DESIGN OVERRIDES
+   Makes all major pages match Saved Plans
+===================================================== */
+
+/* ---------- CENTERED BACKGROUND LOGO ---------- */
+
+.background-layout {
+  position: relative;
+  min-height: 100vh;
+  overflow-x: hidden;
+  background: rgba(15, 17, 21, 0.94);
+}
+
+.background-logo {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+
+  transform: translate(-50%, -50%);
+
+  width: min(700px, 72vw);
+  max-width: 90vw;
+  max-height: 78vh;
+
+  object-fit: contain;
+
+  opacity: 0.12;
+  filter: grayscale(100%);
+
+  pointer-events: none;
+  user-select: none;
+
+  z-index: 0;
+}
+
+.page-content {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+}
+
+
+/* ---------- CONSISTENT PAGE WIDTH ---------- */
+
+main,
+.page,
+.dashboard-page,
+.plans-page,
+.form-page,
+.clients-page,
+.client-details-page,
+.client-dashboard {
+  width: min(1200px, 92%);
+  margin-left: auto;
+  margin-right: auto;
+  padding-top: 2.5rem;
+  padding-bottom: 4rem;
+}
+
+
+/* ---------- MATCH SAVED PLAN CARDS ---------- */
+
+.dashboard-card,
+.client-card,
+.client-profile-card,
+.client-plan-card,
+.generated-plan,
+.client-form-card,
+.plan-section {
+  position: relative;
+  overflow: hidden;
+
+  padding: 1.5rem;
+
+  border-radius: 18px;
+
+  border: 1px solid rgba(250, 204, 21, 0.25);
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 23, 42, 0.93),
+      rgba(30, 41, 59, 0.88)
+    );
+
+  backdrop-filter: blur(8px);
+
+  box-shadow:
+    0 12px 30px rgba(0, 0, 0, 0.35);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
+}
+
+
+/* ---------- GOLD TOP LINE ---------- */
+
+.dashboard-card::before,
+.client-card::before,
+.client-profile-card::before,
+.client-plan-card::before,
+.generated-plan::before,
+.client-form-card::before {
+  content: "";
+
+  position: absolute;
+  top: 0;
+  left: 0;
+
+  width: 100%;
+  height: 4px;
+
+  background:
+    linear-gradient(
+      90deg,
+      #facc15,
+      #f59e0b
+    );
+}
+
+
+/* ---------- HOVER EFFECT ---------- */
+
+.dashboard-card:hover,
+.client-card:hover,
+.client-plan-card:hover {
+  transform: translateY(-6px);
+
+  border-color: rgba(250, 204, 21, 0.65);
+
+  box-shadow:
+    0 18px 40px rgba(0, 0, 0, 0.45),
+    0 0 18px rgba(250, 204, 21, 0.12);
+}
+
+
+/* ---------- HEADINGS ---------- */
+
+.dashboard-card h2,
+.dashboard-card h3,
+.client-card h2,
+.client-card h3,
+.client-profile-card h2,
+.client-profile-card h3,
+.client-plan-card h2,
+.client-plan-card h3,
+.generated-plan h2,
+.generated-plan h3,
+.plan-section h2,
+.plan-section h3 {
+  color: #ffffff;
+}
+
+
+/* ---------- GOLD LABELS ---------- */
+
+.dashboard-card strong,
+.client-card strong,
+.client-profile-card strong,
+.client-plan-card strong,
+.generated-plan strong,
+.plan-section strong {
+  color: #facc15;
+}
+
+
+/* ---------- TEXT ---------- */
+
+.dashboard-card p,
+.client-card p,
+.client-profile-card p,
+.client-plan-card p,
+.generated-plan p,
+.plan-section p {
+  color: #e5e7eb;
+  line-height: 1.5;
+}
+
+
+/* ---------- CLIENT WORKOUT DAYS ---------- */
+
+.client-workout-days {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.client-workout-day {
+  padding: 18px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(250, 204, 21, 0.4);
+
+  background: rgba(8, 18, 45, 0.72);
+
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.25);
+
+  transition:
+    transform 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.client-workout-day:hover {
+  transform: translateY(-4px);
+
+  box-shadow:
+    0 10px 25px rgba(245, 197, 66, 0.16);
+}
+
+.client-workout-day h4 {
+  margin-top: 0;
+  color: #f5c542;
+}
+
+
+/* ---------- CLIENT DIET MEALS ---------- */
+
+.client-meal-card {
+  padding: 18px;
+
+  border-radius: 14px;
+
+  border: 1px solid rgba(250, 204, 21, 0.35);
+
+  background: rgba(8, 18, 45, 0.72);
+
+  margin-top: 14px;
+
+  box-shadow:
+    0 6px 18px rgba(0, 0, 0, 0.25);
+}
+
+.client-meal-card h3,
+.client-meal-card h4 {
+  color: #f5c542;
+}
+
+
+/* ---------- NUTRITION SUMMARY ---------- */
+
+.nutrition-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+  margin: 22px 0;
+}
+
+.nutrition-summary article {
+  padding: 18px;
+
+  border-radius: 12px;
+
+  background:
+    linear-gradient(
+      145deg,
+      rgba(15, 23, 42, 0.92),
+      rgba(30, 41, 59, 0.86)
+    );
+
+  border: 1px solid rgba(250, 204, 21, 0.2);
+
+  text-align: center;
+}
+
+.nutrition-summary article h3 {
+  margin-top: 0;
+  color: #ffffff;
+}
+
+.nutrition-summary article p {
+  margin-bottom: 0;
+
+  color: #facc15;
+
+  font-size: 1.35rem;
+  font-weight: 800;
+}
+
+
+/* ---------- MOBILE ---------- */
+
+@media (max-width: 800px) {
+
+  main,
+  .page,
+  .dashboard-page,
+  .plans-page,
+  .form-page,
+  .clients-page,
+  .client-details-page,
+  .client-dashboard {
+    width: 94%;
+    padding-top: 1.5rem;
+    padding-bottom: 3rem;
+  }
+
+  .background-logo {
+    width: 86vw;
+    opacity: 0.1;
+  }
+
+  .client-workout-days {
+    grid-template-columns: 1fr;
+  }
+
+  .nutrition-summary {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+}
+
+
+@media (max-width: 520px) {
+
+  .nutrition-summary {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-card,
+  .client-card,
+  .client-profile-card,
+  .client-plan-card,
+  .generated-plan,
+  .client-form-card {
+    padding: 1.15rem;
+    border-radius: 14px;
+  }
 }
